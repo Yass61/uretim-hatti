@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+cikti/
+*.mp4
+*.png
+*.jpg
+anahtar.json
+.env

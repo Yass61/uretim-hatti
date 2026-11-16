@@ -1,0 +1,26 @@
+# Yeni depoya taşınınca bu dosya .github/workflows/ altına konur.
+name: Kör ses provası
+on:
+  workflow_dispatch:
+jobs:
+  prova:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: python3 test_uretim.py
+      - name: Sesleri üret ve Telegram'a gönder
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+        run: python3 ses_provasi.py ses_adaylari.json prova
+      - name: Numara anahtarını sakla (Telegram'a gitmez)
+        uses: actions/upload-artifact@v4
+        with: { name: ses-provasi-anahtar, path: prova/anahtar.json, retention-days: 30 }

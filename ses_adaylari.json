@@ -1,0 +1,17 @@
+{
+ "_not": "Etiketler ElevenLabs kütüphanesindeki tanımlardan; sesler dinlenmeden seçildi. Google ses adları tr-TR Chirp 3 HD listesinden. Azure HD ses adı ilk çalışmada doğrulanacak. Fish Audio ve Gemini TTS sonra eklenecek.",
+ "tohum": 2026,
+ "metin": "Ebû Talha, Medine'de hurmalığı en çok olan Ensârîydi. En sevdiği mal, mescidin karşısındaki Beyruhâ bahçesiydi. Resûlullah oraya girer, güzel suyundan içerdi. Sonra şu ayet indi.",
+ "adaylar": [
+  {"motor": "elevenlabs", "ses": "5nr6ATQepuidiLb6OT3B", "ad": "Ozan Karaca", "etiket": "zengin, sıcak, sakin"},
+  {"motor": "elevenlabs", "ses": "75SIZa3vvET95PHhf1yD", "ad": "Ahmet", "etiket": "derin, güven veren, sakin"},
+  {"motor": "elevenlabs", "ses": "RXCCWbOxP7Hisa63Xsv5", "ad": "Adam", "etiket": "sakin, dinlendirici"},
+  {"motor": "elevenlabs", "ses": "j82ax9yhzfYwq9lDvRWL", "ad": "Kadir Kayışcı", "etiket": "derin, olgun, yumuşak"},
+  {"motor": "elevenlabs", "ses": "ctoYieZ4J7WwcdhujpMq", "ad": "Doga", "etiket": "sesli kitap"},
+  {"motor": "elevenlabs", "ses": "DpEiQMnL9WxMsymCsjPY", "ad": "Emrullah Uzun", "etiket": "hikâye anlatıcısı"},
+  {"motor": "elevenlabs", "ses": "mF7tIc9VLrznhGooGjaT", "ad": "Seyfullah Kartal", "etiket": "yaşlı, dolgun"},
+  {"motor": "google", "ses": "tr-TR-Chirp3-HD-Algenib", "ad": "Algenib", "etiket": "Chirp 3 HD erkek"},
+  {"motor": "google", "ses": "tr-TR-Chirp3-HD-Achird", "ad": "Achird", "etiket": "Chirp 3 HD erkek"},
+  {"motor": "azure", "ses": "tr-TR-AhmetNeural", "ad": "Ahmet (Azure)", "etiket": "standart erkek"}
+ ]
+}
