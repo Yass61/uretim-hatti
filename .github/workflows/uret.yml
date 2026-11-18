@@ -1,0 +1,122 @@
+name: Bölüm üret
+
+# Elle: Actions → Bölüm üret → Run workflow (bölüm adı ve aşama seçilir).
+# Telegram'dan: onay düğmesi köprü üzerinden buraya "telegram-onay" olayı olarak gelir (kopru/KURULUM.md).
+on:
+  workflow_dispatch:
+    inputs:
+      bolum:
+        description: "Bölüm klasörünün adı (bolumler/ altında)"
+        required: true
+        default: "ebu-talha"
+      asama:
+        description: "senaryo = denetle ve senaryoyu onaya gönder · uret = videoyu üret ve onaya gönder · tahmin = yalnız maliyet"
+        required: true
+        default: "tahmin"
+        type: choice
+        options: [tahmin, senaryo, uret]
+      gonder:
+        description: "Telegram'a gönder"
+        type: boolean
+        default: true
+  repository_dispatch:
+    types: [telegram-onay]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uret-${{ github.event.inputs.bolum || github.event.client_payload.kimlik }}
+  cancel-in-progress: false
+
+jobs:
+  uret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+      GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+      FAL_KEY: ${{ secrets.FAL_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      # Dışarıdan gelen değerler komuta gömülmez, ortam değişkeni olarak okunur.
+      GIRDI_BOLUM: ${{ github.event.inputs.bolum }}
+      GIRDI_ASAMA: ${{ github.event.inputs.asama }}
+      GIRDI_GONDER: ${{ github.event.inputs.gonder }}
+      ONAY_KIMLIK: ${{ github.event.client_payload.kimlik }}
+      ONAY_KARAR: ${{ github.event.client_payload.karar }}
+      ONAY_NOT: ${{ github.event.client_payload.not }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - name: Ne yapılacak?
+        id: is
+        run: python3 onay.py coz >> "$GITHUB_OUTPUT"
+      - name: Onayı kaydet
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          pip install -q requests
+          python3 onay.py kaydet
+          git config user.name "uretim-hatti"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A bolumler
+          git diff --cached --quiet || git commit -m "Telegram kararı: $(python3 onay.py baslik)"
+          git pull --rebase --autostash || true
+          git push
+      - name: Kurulum
+        if: steps.is.outputs.asama != 'yok'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q -r requirements.txt
+          python3 test_uretim.py
+      - name: Önbellek (ödenmiş ses ve görseller)
+        if: steps.is.outputs.asama == 'uret'
+        uses: actions/cache@v4
+        with:
+          path: onbellek
+          key: onbellek-${{ steps.is.outputs.bolum }}-${{ github.run_id }}
+          restore-keys: onbellek-${{ steps.is.outputs.bolum }}-
+      - name: Derinlik modeli
+        if: steps.is.outputs.asama == 'uret'
+        uses: actions/cache@v4
+        with:
+          path: modeller
+          key: derinlik-anything-v2-small-1
+      - name: Derinlik modelini indir (yoksa)
+        if: steps.is.outputs.asama == 'uret'
+        continue-on-error: true
+        run: |
+          mkdir -p modeller
+          if [ ! -s modeller/depth_anything_v2_vits.onnx ]; then
+            curl -fL --retry 3 -o modeller/depth_anything_v2_vits.onnx \
+              https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx
+          fi
+          ls -la modeller
+      - name: Hattı çalıştır
+        if: steps.is.outputs.asama != 'yok'
+        env:
+          BOLUM: ${{ steps.is.outputs.bolum }}
+          ASAMA: ${{ steps.is.outputs.asama }}
+          GONDER: ${{ steps.is.outputs.gonder }}
+        run: |
+          set -o pipefail
+          bayrak=""
+          [ "$ASAMA" = "tahmin" ] && bayrak="--tahmin"
+          [ "$ASAMA" = "senaryo" ] && bayrak="--senaryo"
+          [ "$GONDER" = "false" ] && bayrak="$bayrak --gonderme"
+          python3 -u hat.py "bolumler/$BOLUM/bolum.json" $bayrak 2>&1 | grep -v "kaba derinlik" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Videoyu ve durumu sakla
+        if: always() && steps.is.outputs.asama == 'uret'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.is.outputs.bolum }}-${{ github.run_number }}
+          path: |
+            bolumler/${{ steps.is.outputs.bolum }}/uretim/video.mp4
+            bolumler/${{ steps.is.outputs.bolum }}/uretim/durum.json
+            bolumler/${{ steps.is.outputs.bolum }}/uretim/defter.jsonl
+            bolumler/${{ steps.is.outputs.bolum }}/uretim/kare_*.jpg
+          retention-days: 30

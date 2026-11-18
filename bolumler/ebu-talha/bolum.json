@@ -1,0 +1,216 @@
+{
+ "baslik": "Bir sahabe, bir ayet: Ebû Talha ve Beyruhâ",
+ "seri": "Bir sahabe, bir ayet",
+ "alt_baslik": "Ebû Talha · Âl-i İmrân 92",
+ "ayet": [
+  3,
+  92
+ ],
+ "ayet_etiketi": "Âl-i İmrân, 92",
+ "kaynak_satirlari": [
+  "Buhârî 1461 · Müslim 998",
+  "Rûhu'l-Beyân, c. 2, s. 63",
+  "Ayet metni: Tanzil · Meal: Elmalılı"
+ ],
+ "cumleler": [
+  {
+   "id": "s1",
+   "metin": "Ayet inince, en sevdiği bahçeyi Allah yoluna adadı.",
+   "kaynaksiz": "kanca"
+  },
+  {
+   "id": "s2",
+   "metin": "Ebû Talha, Medine'de hurmalığı en çok olan Ensârîydi.",
+   "kaynak": "Buhârî 1461"
+  },
+  {
+   "id": "s3",
+   "metin": "En sevdiği mal, mescidin karşısındaki Beyruhâ bahçesiydi.",
+   "kaynak": "Buhârî 1461"
+  },
+  {
+   "id": "s4",
+   "metin": "Resûlullah oraya girer, güzel suyundan içerdi.",
+   "kaynak": "Buhârî 1461"
+  },
+  {
+   "id": "s5",
+   "metin": "Sonra şu ayet indi:",
+   "altyazi": false,
+   "kaynaksiz": "köprü"
+  },
+  {
+   "id": "tilavet",
+   "bekle": 9.0
+  },
+  {
+   "id": "s6",
+   "metin": "Ebû Talha hemen kalktı:",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s7",
+   "metin": "“Yâ Resûlallah, en sevdiğim malım Beyruhâ.",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s8",
+   "metin": "Allah için sadaka olsun.",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s9",
+   "metin": "Allah sana nereyi gösterirse oraya koy.”",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s10",
+   "metin": "Resûlullah: “Ne güzel, kazançlı mal!",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s11",
+   "metin": "Söylediğini işittim.",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s12",
+   "metin": "Bence onu yakınlarına ver.”",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s13",
+   "metin": "Ebû Talha da bahçeyi akrabaları ve amcaoğulları arasında paylaştırdı.",
+   "kaynak": "Buhârî 1461 · Müslim 998"
+  },
+  {
+   "id": "s14",
+   "metin": "Rûhu'l-Beyân'da şöyle geçer:",
+   "kaynak": "Rûhu'l-Beyân, c. 2, s. 63"
+  },
+  {
+   "id": "s15",
+   "metin": "İnsan sevdiğini, ancak daha değerli bir sevgiliye ulaşacağına yakîn olunca verir.",
+   "kaynak": "Rûhu'l-Beyân, c. 2, s. 63"
+  },
+  {
+   "id": "s16",
+   "metin": "Selef de sevdiği şeyi, ihtiyaç duyacakları gün için Allah'a azık yapardı.",
+   "kaynak": "Rûhu'l-Beyân, c. 2, s. 63"
+  }
+ ],
+ "planlar": [
+  {
+   "gorsel": "yer-tutucu/skyline.jpg",
+   "cumle": [
+    "s1"
+   ],
+   "istem": "Wide establishing view of a small oasis town at first light: low flat-roofed mud-brick houses half hidden among dense date palms, a thin thread of hearth smoke rising straight up, black volcanic rock scattered in the near foreground, pale gold sky above distant bare hills."
+  },
+  {
+   "gorsel": "yer-tutucu/grove.jpg",
+   "cumle": [
+    "s2"
+   ],
+   "istem": "Inside a vast date palm grove: rows of tall rough trunks receding into warm haze, low sun cutting between the fronds, heavy clusters of ripening dates hanging overhead, a narrow irrigation channel glinting along the ground."
+  },
+  {
+   "gorsel": "yer-tutucu/garden_well.jpg",
+   "cumle": [
+    "s3"
+   ],
+   "istem": "A walled garden seen through its open gateway: a stone-lined well at the center with a palm-wood frame, coiled rope and a leather bucket, lush palms and a few pomegranate bushes around it, sunlit mud-brick wall behind."
+  },
+  {
+   "gorsel": "yer-tutucu/gate.jpg",
+   "cumle": [
+    "s4"
+   ],
+   "istem": "Close view of clear water just drawn from a well: a leather bucket brimming and dripping over the worn stone rim, sunlight sparkling in the falling drops, wet dark stone, cool palm shade around."
+  },
+  {
+   "kart": "ayet",
+   "cumle": [
+    "s5",
+    "tilavet"
+   ]
+  },
+  {
+   "gorsel": "yer-tutucu/palm_close.jpg",
+   "cumle": [
+    "s6"
+   ],
+   "istem": "Low angle from the ground beneath a palm tree: an empty woven palm mat in the shade where someone has just risen, faint sandal prints in the dust leading away toward a bright gateway in a mud-brick wall."
+  },
+  {
+   "gorsel": "yer-tutucu/gate.jpg",
+   "cumle": [
+    "s7"
+   ],
+   "istem": "A whole palm garden seen from its gate at golden hour: every frond glowing, the stone well small in the distance at the end of a straight earthen path, long shadows lying across the ground."
+  },
+  {
+   "gorsel": "yer-tutucu/garden_well.jpg",
+   "cumle": [
+    "s8"
+   ],
+   "istem": "A heavy palm-wood garden gate swung wide open, its wooden bar lifted out and leaning against the mud-brick wall, warm light pouring through the opening onto the empty path beyond."
+  },
+  {
+   "gorsel": "yer-tutucu/grove.jpg",
+   "cumle": [
+    "s9"
+   ],
+   "istem": "View from above the crowns of a palm grove toward a low mud-brick town on the horizon, the fronds forming a dark green sea, one clear path of light running through the middle distance."
+  },
+  {
+   "gorsel": "yer-tutucu/sun_rays.jpg",
+   "cumle": [
+    "s10"
+   ],
+   "huzme": 0.2,
+   "isik_x": 0.8,
+   "isik_y": 0.2,
+   "istem": "Looking up from the ground through palm fronds into strong slanting beams of late sunlight, the beams made visible by fine dust in the air, dark trunks framing both sides."
+  },
+  {
+   "gorsel": "yer-tutucu/sun_rays.jpg",
+   "cumle": [
+    "s11",
+    "s12"
+   ],
+   "huzme": 0.2,
+   "isik_x": 0.8,
+   "isik_y": 0.2,
+   "istem": "Looking up from the ground through palm fronds into strong slanting beams of late sunlight, the beams made visible by fine dust in the air, dark trunks framing both sides."
+  },
+  {
+   "gorsel": "yer-tutucu/plots.jpg",
+   "cumle": [
+    "s13"
+   ],
+   "istem": "A palm garden seen from a height, divided by low mud-brick walls and palm-frond fences into several smaller plots, each with its own palms, a small water channel branching to feed every plot."
+  },
+  {
+   "gorsel": "yer-tutucu/night.jpg",
+   "cumle": [
+    "s14",
+    "s15"
+   ],
+   "hareket": "yaklas",
+   "istem": "Night interior of a plain mud-brick room: a single clay oil lamp burning on a low wooden stand, a closed leather-bound volume resting beside it, a small square window showing a deep blue sky with stars."
+  },
+  {
+   "gorsel": "yer-tutucu/night.jpg",
+   "cumle": [
+    "s16"
+   ],
+   "istem": "Night interior of a plain mud-brick room: a single clay oil lamp burning on a low wooden stand, a closed leather-bound volume resting beside it, a small square window showing a deep blue sky with stars."
+  },
+  {
+   "kart": "son",
+   "sure": 3.5
+  }
+ ],
+ "_not": "Pilot bölüm. 'gorsel' alanındaki dosyalar kodla çizilmiş yer tutuculardır; FAL_KEY eklenince 'istem' alanından gerçek görseller üretilir."
+}

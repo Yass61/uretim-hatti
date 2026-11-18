@@ -27,7 +27,7 @@ from hareket import Ayar, Hareket
 
 W, H, FPS = 1080, 1920, 30
 KOK = os.path.dirname(os.path.abspath(__file__))
-KURAN = os.environ.get("KURAN_VERISI", os.path.join(KOK, "..", "kuran", "kuran.jsonl.gz"))
+KURAN = os.environ.get("KURAN_VERISI", os.path.join(KOK, "kuran", "kuran.jsonl.gz"))
 F_KALIN = os.path.join(KOK, "fonts/Inter-Bold.otf")
 F_ORTA = os.path.join(KOK, "fonts/Inter-Medium.otf")
 F_SERIF = os.path.join(KOK, "fonts/DejaVuSerif.ttf")
@@ -71,7 +71,7 @@ def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
         parcalar = []
         if c["id"] in zamanlar:                       # gerçek ses: süre sesten gelir
             bas, bit = zamanlar[c["id"]]
-            ps = parcala(c["metin"])
+            ps = parcala(c.get("metin") or "")
             toplam = sum(len(p) for p in ps) or 1
             u = bas
             for p in ps:                                 # öbekler harf sayısına orantılı dağıtılır
@@ -102,6 +102,8 @@ def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
         planlar.append({**p, "bas": bas, "bit": bit})
     for i in range(len(planlar) - 1):                    # planlar arasında boşluk kalmasın
         planlar[i]["bit"] = planlar[i + 1]["bas"]
+    if planlar:
+        planlar[0]["bas"] = 0.0                          # sessiz açılışta ilk görsel ekranda olsun
     return cumleler, planlar, t
 
 
@@ -137,9 +139,9 @@ def ayet_karti(bolum: dict) -> Image.Image:
     boyut = 78
     while True:                                          # uzun ayette yazı küçülür, taşmaz
         fq = yazi(F_KURAN, boyut)
-        satirlar = satirla(d, arapca.split(), fq, 800, **kw)
+        satirlar = satirla(d, arapca.split(), fq, 700, **kw)
         fm = yazi(F_SERIF, max(int(boyut * 0.56), 30))
-        meal = satirla(d, a["elmalili"].strip().split(), fm, 780)
+        meal = satirla(d, a["elmalili"].strip().split(), fm, 690)
         yuk = len(satirlar) * boyut * 1.92 + 180 + len(meal) * fm.size * 1.5 + 90
         if yuk <= 1250 or boyut <= 40:
             break
@@ -238,6 +240,19 @@ def hazirla(bolum: dict, klasor: str):
     return cumleler, planlar, toplam, yazilar, rozetler
 
 
+def belir(t: float, bas: float, bit: float, sure: float) -> float:
+    """Girişte ve çıkışta 0-1 arası yumuşak görünürlük."""
+    x = min((t - bas) / sure, (bit - t) / (sure * 0.6), 1.0)
+    x = min(max(x, 0.0), 1.0)
+    return x * x * (3 - 2 * x)
+
+
+def soluk(ov: Image.Image, a: float) -> Image.Image:
+    if a >= 0.999:
+        return ov
+    return ov.getchannel("A").point(lambda v: int(v * a))
+
+
 def plan_karesi(p: dict, t: float) -> np.ndarray:
     if "sabit" in p:
         return p["sabit"]
@@ -256,46 +271,62 @@ def kare(t: float, planlar, yazilar, rozetler) -> Image.Image:
     img = Image.fromarray(k)
     for bas, bit, ov in rozetler:
         if bas <= t < bit:
-            img.paste(ov, ((W - ov.width) // 2, 1430), ov)
+            a = belir(t, bas, bit, 0.35)
+            img.paste(ov, ((W - ov.width) // 2, 1430), soluk(ov, a))
             break
     for bas, bit, ov in yazilar:
         if bas <= t < bit:
-            img.paste(ov, (0, int(H * 0.55) - 110), ov)
+            a = belir(t, bas, bit, 0.14)
+            # öbek belirirken birkaç piksel yükselir: yazı "patlamaz", yerine oturur
+            img.paste(ov, (0, int(H * 0.55) - 110 + int(round((1 - a) * 14))), soluk(ov, a))
             break
     return img
+
+
+def kur(bolum: dict, klasor: str, cikti: str, onizleme: list[float] | None = None) -> dict:
+    """Videoyu kurar. Dönen: {"sure", "cumleler", "planlar"}; onizleme verilirse yalnız o anların karesi yazılır."""
+    cumleler, planlar, toplam, yazilar, rozetler = hazirla(bolum, klasor)
+    print(f"toplam {toplam:.1f} sn, {len(planlar)} plan, {len(yazilar)} altyazı öbeği", flush=True)
+    bilgi = {"sure": toplam, "cumleler": cumleler, "planlar": planlar}
+    if onizleme is not None:
+        bilgi["kareler"] = []
+        for z in onizleme:
+            yol = f"{os.path.splitext(cikti)[0]}_{z:06.2f}.jpg"
+            kare(float(z), planlar, yazilar, rozetler).save(yol, quality=90)
+            bilgi["kareler"].append(yol)
+        return bilgi
+    ses = (bolum.get("ses") or {}).get("dosya")
+    gecici = os.path.splitext(cikti)[0] + ".tmp.mp4"
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+           "-r", str(FPS), "-i", "-"]
+    if ses:                                              # ses videodan kısaysa sonu sessizlikle dolar
+        cmd += ["-i", os.path.join(klasor, ses), "-af", "loudnorm=I=-14:TP=-1.5:LRA=11,apad", "-ar", "48000"]
+    else:
+        cmd += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
+    cmd += ["-c:v", "libx264", "-crf", "20", "-maxrate", "6M", "-bufsize", "12M", "-preset", "medium",
+            "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-t", f"{toplam:.3f}",
+            "-movflags", "+faststart", gecici]
+    pr = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    n = int(toplam * FPS)
+    for i in range(n):
+        pr.stdin.write(kare(i / FPS, planlar, yazilar, rozetler).tobytes())
+        if i and i % (FPS * 10) == 0:
+            print(f"  {i / FPS:.0f}/{toplam:.0f} sn", flush=True)
+    pr.stdin.close()
+    if pr.wait() != 0:
+        raise SystemExit("ffmpeg hata verdi")
+    os.replace(gecici, cikti)                            # yarım kalan video asıl adı almaz
+    print("yazıldı:", cikti, flush=True)
+    return bilgi
 
 
 def main() -> None:
     if len(sys.argv) < 3:
         raise SystemExit(__doc__)
     bolum_yolu, cikti = sys.argv[1], sys.argv[2]
-    klasor = os.path.dirname(os.path.abspath(bolum_yolu))
     bolum = json.load(open(bolum_yolu, encoding="utf-8"))
-    cumleler, planlar, toplam, yazilar, rozetler = hazirla(bolum, klasor)
-    print(f"toplam {toplam:.1f} sn, {len(planlar)} plan, {len(yazilar)} altyazı öbeği")
-    if "--onizleme" in sys.argv:
-        for z in sys.argv[sys.argv.index("--onizleme") + 1:]:
-            kare(float(z), planlar, yazilar, rozetler).save(f"{os.path.splitext(cikti)[0]}_{z}.jpg", quality=90)
-        return
-    ses = (bolum.get("ses") or {}).get("dosya")
-    gecici = os.path.splitext(cikti)[0] + ".tmp.mp4"
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-           "-r", str(FPS), "-i", "-"]
-    if ses:
-        cmd += ["-i", os.path.join(klasor, ses), "-af", "loudnorm=I=-14:TP=-1.5:LRA=11"]
-    else:
-        cmd += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]
-    cmd += ["-c:v", "libx264", "-crf", "21", "-maxrate", "5M", "-bufsize", "10M", "-preset", "medium",
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", gecici]
-    pr = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    for i in range(int(toplam * FPS)):
-        pr.stdin.write(kare(i / FPS, planlar, yazilar, rozetler).tobytes())
-    pr.stdin.close()
-    if pr.wait() != 0:
-        raise SystemExit("ffmpeg hata verdi")
-    os.replace(gecici, cikti)
-    print("yazıldı:", cikti)
+    anlar = [float(z) for z in sys.argv[sys.argv.index("--onizleme") + 1:]] if "--onizleme" in sys.argv else None
+    kur(bolum, os.path.dirname(os.path.abspath(bolum_yolu)), cikti, anlar)
 
 
 if __name__ == "__main__":

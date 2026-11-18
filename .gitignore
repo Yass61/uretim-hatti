@@ -1,8 +1,12 @@
 __pycache__/
 *.pyc
+onbellek/
+modeller/
+bolumler/*/uretim/
 cikti/
 *.mp4
 *.png
 *.jpg
+!bolumler/*/yer-tutucu/*.jpg
 anahtar.json
 .env

@@ -68,9 +68,122 @@ def test_ses_adaylari_dosyasi():
     assert all(x["motor"] in ses_provasi.MOTORLAR and x["ses"] for x in ayar["adaylar"])
 
 
+
+
+def test_okunus():
+    from okunus import okunus, sayi, sira
+    assert sayi(1461) == "bin dört yüz altmış bir" and sayi(1000) == "bin" and sira(63) == "altmış üçüncü"
+    assert okunus("II. Mehmed 1452–1481 arasında %75'ini aldı.", {}) == \
+        "ikinci Mehmed bin dört yüz elli iki ile bin dört yüz seksen bir arasında yüzde yetmiş beşini aldı."
+    assert okunus("Hz. Ömer b. Hattâb (r.a.) geldi.", {}) == "Hazreti Ömer bin Hattâb radıyallâhu anh geldi."
+    assert okunus("Resûlullah (s.a.v.) buyurdu.", {}) == "Resûlullah sallallâhu aleyhi ve sellem buyurdu."
+    assert okunus("Ebû Talha'nın bahçesi.", {}) == "Ebû Talha'nın bahçesi."        # sayısız metin değişmez
+    assert okunus("Beyruhâ", {"Beyruhâ": "Bey-ru-hâ"}) == "Bey-ru-hâ"
+    print("geçti: test_okunus")
+
+
+def test_kapi():
+    import tempfile
+    from kapi import ButceAsildi, Kapi
+    with tempfile.TemporaryDirectory() as d:
+        k = Kapi(os.path.join(d, "defter.jsonl"), 0.10, os.path.join(d, "ob"))
+        sayac = []
+        uret = lambda: (sayac.append(1), b"veri")[1]
+        y1 = k.cagir("gorsel", {"a": 1}, "img", 0.04, uret)
+        y2 = k.cagir("gorsel", {"a": 1}, "img", 0.04, uret)           # ikinci kez ödenmez
+        assert y1 == y2 and len(sayac) == 1 and k.harcanan() == 0.04
+        assert k.tahmin([("gorsel", {"a": 1}, "img", 0.04), ("gorsel", {"a": 2}, "img", 0.04),
+                         ("gorsel", {"a": 2}, "img", 0.04)]) == (0.04, 1, 1)
+        k.cagir("gorsel", {"a": 2}, "img", 0.04, uret)
+        try:
+            k.cagir("gorsel", {"a": 3}, "img", 0.04, uret)            # bütçe 0,10: üçüncü çağrı durur
+            raise AssertionError("bütçe aşılmalıydı")
+        except ButceAsildi:
+            pass
+        try:
+            Kapi(os.path.join(d, "d2.jsonl"), 1, os.path.join(d, "ob")).cagir(
+                "ses", {"x": 1}, "mp3", 0.01, lambda: (_ for _ in ()).throw(OSError("ağ")), deneme=1)
+            raise AssertionError("hata vermeliydi")
+        except RuntimeError:
+            pass
+    print("geçti: test_kapi")
+
+
+def test_bolum_denetimi():
+    import copy
+    import bolum as bd
+    kok = os.path.dirname(os.path.abspath(__file__))
+    klasor = os.path.join(kok, "bolumler", "ebu-talha")
+    b = json.load(open(os.path.join(klasor, "bolum.json"), encoding="utf-8"))
+    h, _ = bd.denetle(b, klasor)
+    assert h == [], h
+    k = copy.deepcopy(b)
+    del k["cumleler"][1]["kaynak"]
+    k["cumleler"][2]["metin"] = "Bursevî der ki bu böyledir."
+    k["planlar"][3]["cumle"] = ["yok"]
+    h, _ = bd.denetle(k, klasor)
+    assert any("kaynak yok" in x for x in h) and any("Bursevî" in x for x in h) and any("bilinmeyen cümle" in x for x in h)
+    print("geçti: test_bolum_denetimi")
+
+
+def test_denetim_puani():
+    import numpy as np
+    import denetim
+    tam = {"maddeler": [{"ad": ad, "gordugum": "hurma ağaçları ve kerpiç duvar görünüyor", "hukum": "geçti"}
+                        for ad, _, _ in denetim.MADDELER]}
+    assert denetim.puanla(tam) == (10, [])
+    tam["maddeler"][0]["hukum"] = "kaldı"          # büyük hata: -3
+    tam["maddeler"][4]["hukum"] = "kaldı"          # küçük hata: -1
+    assert denetim.puanla(tam)[0] == 6
+    tam["maddeler"][1]["gordugum"] = "yok"         # kanıtsız cevap sayılmaz
+    assert denetim.puanla(tam)[0] is None
+    sira = iter([{"maddeler": []}, {"maddeler": [{"ad": ad, "gordugum": "avlu, kuyu ve hurma gölgesi var", "hukum": "geçti"}
+                                                  for ad, _, _ in denetim.MADDELER]}])
+    kare = np.full((64, 36, 3), 120, np.uint8)
+    assert denetim.goz(kare, "cümle", "m", sor=lambda *_: next(sira))[0] == 10      # geçersiz cevapta yeniden sorar
+    assert denetim.kare_olc(np.zeros((8, 8, 3), np.uint8)) and not denetim.kare_olc(
+        np.random.default_rng(1).integers(0, 255, (64, 64, 3)).astype(np.uint8))
+    print("geçti: test_denetim_puani")
+
+
+def test_ses_ve_gorsel_sahte_motorla():
+    """Ücretli çağrılar sahte motorla: zamanlar ölçülür, ikinci çalıştırma önbellekten gelir."""
+    import subprocess
+    import tempfile
+    import gorsel
+    import ses
+    from kapi import Kapi
+    sayac = []
+
+    def sahte(metin, aday):
+        sayac.append(metin)
+        with tempfile.NamedTemporaryFile(suffix=".mp3") as f:
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+                            f"sine=frequency=180:duration={0.2 + 0.05 * len(metin.split()):.2f}", f.name], check=True)
+            return open(f.name, "rb").read()
+
+    b = {"cumleler": [{"id": "a", "metin": "II. Mehmed geldi."}, {"id": "t", "bekle": 1.0}, {"id": "b", "metin": "Sonra gitti."}],
+         "planlar": [{"istem": "palm grove", "cumle": ["a"]}, {"kart": "ayet", "cumle": ["t"]}, {"istem": "palm grove", "cumle": ["b"]}]}
+    ayar = {"ses": {"motor": "sahte", "ses": "x"}, "gorsel": {"model": "m", "aday": 2, "usd": 0.04}, "fiyatlar": {"sahte": 1.0}}
+    with tempfile.TemporaryDirectory() as d:
+        k = Kapi(os.path.join(d, "defter.jsonl"), 5, os.path.join(d, "ob"))
+        s = ses.uret(b, ayar, os.path.join(d, "ses"), k, motorlar={"sahte": (sahte, [])})
+        z = s["zamanlar"]
+        assert sayac[0] == "ikinci Mehmed geldi."                      # motora okunuş gider
+        assert abs(z["a"][0] - ses.ACILIS_SN) < 0.01 and z["a"][1] < z["t"][0] < z["t"][1] < z["b"][0] < z["b"][1]
+        assert abs((z["t"][1] - z["t"][0]) - 1.0) < 0.01
+        assert abs(ses._sure(s["dosya"]) - (z["b"][1] + ses.ARA_SN + ses.KAPANIS_SN)) < 0.15
+        ses.uret(b, ayar, os.path.join(d, "ses"), k, motorlar={"sahte": (sahte, [])})
+        assert len(sayac) == 2                                         # ikinci tur önbellekten
+        cagri = []
+        r = gorsel.uret(b, ayar, k, cagri=lambda m, i, t: (cagri.append(t), b"img")[1])
+        assert len(cagri) == 2 and r[0] == r[2] and len(r[0]) == 2     # aynı istem iki planda: bir kez üretilir
+        assert "No human faces" in gorsel.tam_istem("x")
+    print("geçti: test_ses_ve_gorsel_sahte_motorla")
+
+
 if __name__ == "__main__":
     for ad, f in sorted(globals().items()):
         if ad.startswith("test_"):
             f()
-            print("geçti:", ad)
     print("hepsi geçti")

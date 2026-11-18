@@ -1,4 +1,3 @@
-# Yeni depoya taşınınca bu dosya .github/workflows/ altına konur.
 name: Test
 on: [push, workflow_dispatch]
 jobs:

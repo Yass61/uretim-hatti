@@ -22,9 +22,15 @@ def elevenlabs(metin: str, aday: dict) -> bytes:
         f"https://api.elevenlabs.io/v1/text-to-speech/{aday['ses']}",
         headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"]},
         params={"output_format": "mp3_44100_128"},
-        json={"text": metin, "model_id": aday.get("model", "eleven_multilingual_v2"),
-              "voice_settings": {"stability": 0.6, "similarity_boost": 0.75, "style": 0.15, "speed": 0.92}},
+        json={k: v for k, v in {
+            "text": metin, "model_id": aday.get("model") or "eleven_multilingual_v2", "language_code": "tr",
+            "previous_text": aday.get("onceki") or None, "next_text": aday.get("sonraki") or None,
+            "voice_settings": {"stability": 0.6, "similarity_boost": 0.75, "style": 0.15,
+                               "speed": aday.get("hiz") or 0.92}}.items() if v is not None},
         timeout=180)
+    if r.status_code == 400 and "language_code" in r.text:     # eski modeller dil kodunu kabul etmez
+        r = requests.post(r.request.url, headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"]},
+                          json={"text": metin, "model_id": aday.get("model") or "eleven_multilingual_v2"}, timeout=180)
     r.raise_for_status()
     return r.content
 

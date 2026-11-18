@@ -1,0 +1,8 @@
+{
+ "_not": "Hattın ayarları. Ses, kör provadan sonra seçilir; seçilene kadar 'ses' boş kalır ve hat sessiz kurar.",
+ "butce_usd": 1.5,
+ "ses": null,
+ "gorsel": {"model": "fal-ai/recraft/v4/text-to-image", "aday": 2, "usd": 0.04},
+ "denetim": {"model": "gemini-flash-latest", "gecme_puani": 8, "ornek_kare": 8},
+ "fiyatlar": {"elevenlabs": 0.08, "google": 0.0, "azure": 0.016}
+}
