@@ -1,0 +1,46 @@
+name: Görsel karşılaştır
+
+# Aynı sahneleri anahtarı olan her görsel sağlayıcısıyla üretip Telegram'a yan yana gönderir.
+on:
+  workflow_dispatch:
+    inputs:
+      bolum:
+        description: "Bölüm klasörünün adı"
+        required: true
+        default: "ebu-talha"
+      planlar:
+        description: "Plan numaraları (boşluklu, ör. 1 7 13). Boş bırakılırsa açılış, orta, kapanış."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  karsilastir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      GEMINI_GORSEL_API_KEY: ${{ secrets.GEMINI_GORSEL_API_KEY }}
+      RECRAFT_API_KEY: ${{ secrets.RECRAFT_API_KEY }}
+      FAL_KEY: ${{ secrets.FAL_KEY }}
+      GIRDI_BOLUM: ${{ github.event.inputs.bolum }}
+      GIRDI_PLANLAR: ${{ github.event.inputs.planlar }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -q -r requirements.txt
+      - name: Karşılaştır
+        run: |
+          echo "$GIRDI_BOLUM" | grep -Eq '^[a-z0-9][a-z0-9-]{0,60}$' || { echo "geçersiz bölüm adı"; exit 1; }
+          echo "$GIRDI_PLANLAR" | grep -Eq '^[0-9 ]*$' || { echo "plan numaraları yalnız rakam olmalı"; exit 1; }
+          python3 -u karsilastir.py "bolumler/$GIRDI_BOLUM/bolum.json" $GIRDI_PLANLAR | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: karsilastirma-${{ github.run_number }}
+          path: bolumler/${{ github.event.inputs.bolum }}/uretim/karsilastirma*
+          retention-days: 30

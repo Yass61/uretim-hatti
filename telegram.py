@@ -91,3 +91,17 @@ def bekle(kimlik: str, sure_sn: int = 300) -> tuple[str, str] | None:
             elif karar == "metin" and not_bekliyor:
                 return "not", metin
     return None
+
+
+def album(yollar: list[str], aciklamalar: list[str]) -> list:
+    """2-10 görseli tek mesajda yan yana gönderir (karşılaştırma için)."""
+    medya, dosyalar = [], {}
+    for n, (y, a) in enumerate(zip(yollar, aciklamalar)):
+        medya.append({"type": "photo", "media": f"attach://g{n}", "caption": a[:1000]})
+        dosyalar[f"g{n}"] = open(y, "rb")
+    try:
+        return _cagir("sendMediaGroup", {"chat_id": os.environ["TELEGRAM_CHAT_ID"], "media": json.dumps(medya)},
+                      dosyalar, zaman_asimi=300)
+    finally:
+        for f in dosyalar.values():
+            f.close()

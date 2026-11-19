@@ -27,7 +27,7 @@ aşılmaz, her harcama deftere yazılır. Yarıda kesilen iş yeniden çalışt�
     python3 hat.py bolumler/ebu-talha/bolum.json --gonderme            # üret, Telegram'a gönderme
 
 Anahtarı olmayan adım atlanır ve raporda söylenir. Hiç anahtar yokken pilot bölüm yer tutucu görsellerle
-ve sessiz kurulur; iki çekirdekte 74 saniyelik video yaklaşık 5,5 dakika sürer.
+ve sessiz kurulur. Görsel sağlayıcısı `ayar.json` dosyasında seçilir; iki çekirdekte 74 saniyelik video yaklaşık 5,5 dakika sürer.
 
 ## Dosyalar
 
@@ -38,7 +38,8 @@ ve sessiz kurulur; iki çekirdekte 74 saniyelik video yaklaşık 5,5 dakika sür
 | `okunus.py` | Türkçe okunuş: sayılar, tarihler, Hz., s.a.v., r.a. | Testli |
 | `kapi.py` | Önbellek, bütçe tavanı, harcama defteri, yeniden deneme | Testli |
 | `ses.py` | Cümle cümle anlatım, ölçülmüş zamanlar, tilavet yerleştirme | Sahte motorla testli; gerçek motor denenmedi |
-| `gorsel.py` | fal (Recraft V4) ile aday görseller | Sahte çağrıyla testli; gerçek çağrı denenmedi |
+| `gorsel.py` | Aday görseller: Gemini Nano Banana 2.1 (ana), Recraft ya da fal | Sahte ağla testli; gerçek çağrı denenmedi |
+| `karsilastir.py` | Aynı sahneleri her sağlayıcıyla üretip Telegram'a yan yana gönderir | Anahtarsız denendi |
 | `derinlik.py` | Derinlik haritası (Depth Anything V2) | Kaba tahmin denendi; model Actions'ta indirilir |
 | `hareket.py` | Görsel + derinlikten hareketli kareler | Denendi |
 | `kurgu.py` | Videoyu kurar: altyazı, ayet kartı, rozet, geçişler, ses düzeyi | Denendi |

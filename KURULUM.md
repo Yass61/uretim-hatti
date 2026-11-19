@@ -23,12 +23,21 @@ Gizli kutuların yeri: **github.com/Yass61/uretim-hatti → Settings → Secrets
 
 ## 3. Görsel üretimi
 
-1. fal.ai hesabı aç, 10 USD yükle (yaklaşık 10 bölüme yeter).
-2. Anahtarı `FAL_KEY` adıyla gir.
+Ana yol Google'ın Nano Banana 2.1 modeli; yedek Recraft. fal gerekmiyor.
 
-## 4. Kare denetimi (isteğe bağlı ama önerilir)
+1. **Gemini (önerilen):** aistudio.google.com'da **yeni bir proje** aç (kütüphanenin OCR projesi değil;
+   ödeme açılırsa OCR'ın ücretsiz hakkı etkilenebilir). Projede ödemeyi aç, anahtar al ve
+   `GEMINI_GORSEL_API_KEY` adıyla gir. Kare denetimi de bu anahtarı kullanır.
+2. **Recraft (karşılaştırma ve yedek, isteğe bağlı):** recraft.ai → API → birkaç dolarlık birim al,
+   anahtarı `RECRAFT_API_KEY` adıyla gir.
+3. **Actions → Görsel karşılaştır → Run workflow.** Üç sahne her sağlayıcıyla üretilip Telegram'a yan yana
+   gelir (yaklaşık 0,26 USD). Beğendiğini bana yaz; `ayar.json` dosyasına ben işlerim.
 
-`GEMINI_API_KEY` adıyla bir Gemini anahtarı gir. Kütüphanedeki anahtarın aynısı olabilir; ama OCR o
+Pilot bölümün görselleri Gemini'de 2K çözünürlükte yaklaşık 1,11 USD tutar (22 görsel).
+
+## 4. Kare denetimi
+
+3. adımda `GEMINI_GORSEL_API_KEY` girildiyse ayrıca bir şey gerekmez. Eski not: `GEMINI_API_KEY` adıyla bir Gemini anahtarı gir. Kütüphanedeki anahtarın aynısı olabilir; ama OCR o
 anahtarın günlük ücretsiz hakkını bitiriyor. OCR bitene kadar (yaklaşık bir hafta) ayrı bir Google
 projesinden ikinci bir anahtar almak daha sağlıklı.
 

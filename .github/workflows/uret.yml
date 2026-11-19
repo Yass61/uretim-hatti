@@ -41,6 +41,8 @@ jobs:
       AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
       AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
       FAL_KEY: ${{ secrets.FAL_KEY }}
+      RECRAFT_API_KEY: ${{ secrets.RECRAFT_API_KEY }}
+      GEMINI_GORSEL_API_KEY: ${{ secrets.GEMINI_GORSEL_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       # Dışarıdan gelen değerler komuta gömülmez, ortam değişkeni olarak okunur.
       GIRDI_BOLUM: ${{ github.event.inputs.bolum }}

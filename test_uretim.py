@@ -164,7 +164,7 @@ def test_ses_ve_gorsel_sahte_motorla():
 
     b = {"cumleler": [{"id": "a", "metin": "II. Mehmed geldi."}, {"id": "t", "bekle": 1.0}, {"id": "b", "metin": "Sonra gitti."}],
          "planlar": [{"istem": "palm grove", "cumle": ["a"]}, {"kart": "ayet", "cumle": ["t"]}, {"istem": "palm grove", "cumle": ["b"]}]}
-    ayar = {"ses": {"motor": "sahte", "ses": "x"}, "gorsel": {"model": "m", "aday": 2, "usd": 0.04}, "fiyatlar": {"sahte": 1.0}}
+    ayar = {"ses": {"motor": "sahte", "ses": "x"}, "gorsel": {"saglayici": "gemini", "aday": 2}, "fiyatlar": {"sahte": 1.0}}
     with tempfile.TemporaryDirectory() as d:
         k = Kapi(os.path.join(d, "defter.jsonl"), 5, os.path.join(d, "ob"))
         s = ses.uret(b, ayar, os.path.join(d, "ses"), k, motorlar={"sahte": (sahte, [])})
@@ -180,6 +180,66 @@ def test_ses_ve_gorsel_sahte_motorla():
         assert len(cagri) == 2 and r[0] == r[2] and len(r[0]) == 2     # aynı istem iki planda: bir kez üretilir
         assert "No human faces" in gorsel.tam_istem("x")
     print("geçti: test_ses_ve_gorsel_sahte_motorla")
+
+
+
+def test_gorsel_saglayicilari_sahte_ag():
+    """Sağlayıcı cevaplarının çözülmesi; ağ sahte (gerçek API'ler bu ortamdan erişilemez)."""
+    import base64
+    import sys
+    import types
+    import gorsel
+
+    gonderilen = []
+
+    class Cevap:
+        def __init__(self, kod, veri):
+            self.status_code, self._veri, self.text = kod, veri, json.dumps(veri)
+            self.content = b"PNG"
+
+        def json(self):
+            return self._veri
+
+        def raise_for_status(self):
+            pass
+
+    sira = []
+
+    def post(url, **kw):
+        gonderilen.append((url, kw.get("json")))
+        return sira.pop(0)
+
+    sahte = types.SimpleNamespace(post=post, get=lambda *a, **k: Cevap(200, {}))
+    eski = sys.modules.get("requests")
+    sys.modules["requests"] = sahte
+    os.environ["GEMINI_GORSEL_API_KEY"], os.environ["RECRAFT_API_KEY"] = "g", "r"
+    try:
+        b64 = base64.b64encode(b"resim").decode()
+        sira[:] = [Cevap(400, {"error": "Unknown field seed"}),
+                   Cevap(200, {"candidates": [{"content": {"parts": [{"text": "x"}, {"inlineData": {"data": b64}}]}}]})]
+        assert gorsel._gemini("gemini-nano-banana-2.1", "istem", 5) == b"resim"
+        assert "seed" not in gonderilen[-1][1]["generationConfig"]                  # tohumsuz yeniden denedi
+        assert gonderilen[-1][1]["generationConfig"]["imageConfig"]["aspectRatio"] == "9:16"
+        sira[:] = [Cevap(200, {"candidates": [{"finishReason": "PROHIBITED_CONTENT"}]})]
+        try:
+            gorsel._gemini("m", "istem", 5)
+            raise AssertionError("hata vermeliydi")
+        except RuntimeError as h:
+            assert "PROHIBITED_CONTENT" in str(h)
+        sira[:] = [Cevap(400, {"error": "invalid size"}), Cevap(200, {"data": [{"b64_json": b64}]})]
+        assert gorsel._recraft("recraftv4_1", "istem", 5) == b"resim"
+        assert gonderilen[-1][1]["size"] == "2:3"                                  # 9:16 reddedilince dikey yedek
+        ayar = {"gorsel": {"saglayici": "gemini", "aday": 1, "saglayicilar": {"recraft": {"usd": 0.04}}}}
+        assert gorsel.ayar_coz(ayar) == ("gemini", "gemini-nano-banana-2.1", 0.0504)
+        assert gorsel.ayar_coz(ayar, "recraft")[2] == 0.04
+        assert set(gorsel.hazir_saglayicilar()) >= {"gemini", "recraft"}
+    finally:
+        del os.environ["GEMINI_GORSEL_API_KEY"], os.environ["RECRAFT_API_KEY"]
+        if eski is not None:
+            sys.modules["requests"] = eski
+        else:
+            del sys.modules["requests"]
+    print("geçti: test_gorsel_saglayicilari_sahte_ag")
 
 
 if __name__ == "__main__":

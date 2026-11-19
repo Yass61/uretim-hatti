@@ -119,15 +119,16 @@ class Hat:
         istemli = [i for i, p in enumerate(self.bolum["planlar"]) if p.get("istem") and not p.get("kart")]
         if not istemli:
             return self._adim("gorsel", "atlandı", neden="planlarda görsel istemi yok; eldeki dosyalar kullanılır")
-        if not os.environ.get("FAL_KEY"):
+        saglayici = gorsel.ayar_coz(self.ayar)[0]
+        if not gorsel.anahtar(saglayici):
             eksik = [i + 1 for i in istemli if not (self.bolum["planlar"][i].get("gorsel") and os.path.exists(
                 os.path.join(self.klasor, self.bolum["planlar"][i]["gorsel"])))]
             if eksik:
-                raise SystemExit(f"FAL_KEY yok ve şu planların hazır görseli de yok: {eksik}")
-            self._not("FAL_KEY yok; yeni görsel üretilmedi, eldeki yer tutucu görseller kullanıldı.")
-            return self._adim("gorsel", "atlandı", neden="FAL_KEY yok")
+                raise SystemExit(f"{saglayici} görsel anahtarı yok ve şu planların hazır görseli de yok: {eksik}")
+            self._not(f"{saglayici} görsel anahtarı yok; yeni görsel üretilmedi, eldeki yer tutucu görseller kullanıldı.")
+            return self._adim("gorsel", "atlandı", neden=f"{saglayici} anahtarı yok")
         adaylar = gorsel.uret(self.bolum, self.ayar, self.kapi)
-        goz_var = bool(os.environ.get("GEMINI_API_KEY"))
+        goz_var = denetim.goz_anahtari() is not None
         secimler = {}
         for i, yollar in adaylar.items():
             p = self.bolum["planlar"][i]
@@ -140,7 +141,7 @@ class Hat:
             puanlar.sort(reverse=True)
             p["gorsel"] = puanlar[0][2]
             secimler[i + 1] = {"secilen": os.path.basename(puanlar[0][2]), "goz": puanlar[0][0], "olcum": puanlar[0][1]}
-        self._adim("gorsel", "üretildi", secimler=secimler)
+        self._adim("gorsel", "üretildi", saglayici=saglayici, secimler=secimler)
 
     def kur(self) -> None:
         self.video = os.path.join(self.cikti, "video.mp4")
@@ -157,7 +158,7 @@ class Hat:
         k, d = self.kurgu, self.ayar["denetim"]
         sorunlar = denetim.yazi_olc(k["cumleler"])
         sorunlar += denetim.video_olc(self.video, k["sure"], bool(self.bolum.get("ses")))
-        goz_var, puanlar = bool(os.environ.get("GEMINI_API_KEY")), []
+        goz_var, puanlar = denetim.goz_anahtari() is not None, []
         for t in denetim.ornek_anlar(k["planlar"], d["ornek_kare"]):
             yol = os.path.join(self.cikti, f"kare_{t:06.2f}.jpg")
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", self.video,

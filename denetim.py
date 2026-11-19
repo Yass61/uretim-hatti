@@ -159,6 +159,11 @@ def puanla(cevap: dict, maddeler=MADDELER) -> tuple[int | None, list[str]]:
     return puan, bulgu
 
 
+def goz_anahtari() -> str | None:
+    """Kare denetimi için Gemini anahtarı: görsel projesinin anahtarı öncelikli (OCR kotasını yemesin)."""
+    return os.environ.get("GEMINI_GORSEL_API_KEY") or os.environ.get("GEMINI_API_KEY") or None
+
+
 def _gemini(jpeg: bytes, istem: str, model: str) -> dict:
     import requests
 
@@ -166,7 +171,7 @@ def _gemini(jpeg: bytes, istem: str, model: str) -> dict:
                                      {"text": istem}]}],
              "generationConfig": {"temperature": 0, "maxOutputTokens": 4096, "responseMimeType": "application/json"}}
     r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                      params={"key": os.environ["GEMINI_API_KEY"]}, json=govde, timeout=120)
+                      params={"key": goz_anahtari()}, json=govde, timeout=120)
     if r.status_code >= 400:
         raise RuntimeError(f"{r.status_code}: {r.text[:200]}")
     parcalar = ((r.json().get("candidates") or [{}])[0].get("content") or {}).get("parts") or []
