@@ -98,10 +98,32 @@ class Hat:
                 f"\nToplam en çok {tutar + ses_tutar:.2f} USD · bölüm bütçesi {self.kapi.butce:.2f} USD · "
                 f"şimdiye kadar {self.kapi.harcanan():.2f} USD")
 
+    def _tilavet_hazirla(self) -> None:
+        """ayar.tilavet.okuyucu varsa ayetin okunuşunu indirir; ayet kartının süresini tilavete eşitler."""
+        okuyucu = (self.ayar.get("tilavet") or {}).get("okuyucu")
+        if not okuyucu or not self.bolum.get("ayet") or (self.bolum.get("tilavet") or {}).get("dosya"):
+            return
+        import tilavet
+        sure, ayet = self.bolum["ayet"]
+        hedef = os.path.join(self.cikti, f"tilavet_{okuyucu}_{sure:03d}{ayet:03d}.mp3")
+        try:
+            if not os.path.exists(hedef):
+                tilavet.indir(okuyucu, sure, ayet, hedef)
+        except Exception as hata:
+            self._not(f"Tilavet indirilemedi ({okuyucu}): {hata}. Ayet kartı tilavetsiz.")
+            return
+        self.bolum["tilavet"] = {"dosya": os.path.relpath(hedef, self.klasor), "okuyucu": okuyucu,
+                                 "okuyucu_adi": tilavet.OKUYUCULAR.get(okuyucu, okuyucu)}
+        uzunluk = ses_uretimi._sure(hedef)
+        for c in self.bolum["cumleler"]:
+            if c["id"] == "tilavet":
+                c["bekle"] = round(uzunluk + 0.8, 2)
+
     def ses(self) -> None:
         if not self.ayar.get("ses"):
             self._not("Ses seçilmedi (ayar.json); video sessiz kuruldu, süreler tahminden.")
             return self._adim("ses", "atlandı")
+        self._tilavet_hazirla()
         try:
             s = ses_uretimi.uret(self.bolum, self.ayar, os.path.join(self.cikti, "ses"), self.kapi)
         except RuntimeError as hata:

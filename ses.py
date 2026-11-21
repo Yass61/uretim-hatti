@@ -1,6 +1,8 @@
 """Anlatım sesini üretir ve cümle zamanlarını çıkarır.
 
-Her cümle ayrı üretilir: süreler ölçülür (tahmin edilmez), düzeltilen tek cümle yeniden ödenir,
+Varsayılan: her cümle ayrı üretilir. ayar.ses.blok=true ise ayet araları arasındaki paragraf tek parça
+okunur (tonlama korunur) ve sessizliklerden cümlelere bölünür; bölünemezse cümle cümle üretime dönülür.
+Cümle cümle üretimde: süreler ölçülür (tahmin edilmez), düzeltilen tek cümle yeniden ödenir,
 gerisi önbellekten gelir. ElevenLabs'te önceki ve sonraki cümle bağlam olarak verilir; tonlama
 cümleden cümleye kopmaz. Ses motoruna metnin okunuşu gider (okunus.py); altyazı değişmez.
 
@@ -46,6 +48,27 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
     fiyat = (ayar.get("fiyatlar") or {}).get(s["motor"], FIYAT.get(s["motor"], 0.0))
     konusulan = [c for c in bolum["cumleler"] if not c.get("bekle")]
     parcalar, zamanlar, t = [], {}, ACILIS_SN
+    hazir: dict[str, str] = {}
+    if s.get("blok"):                                   # bekleme araları arasındaki cümleler tek parça okunur
+        gruplar, cur = [], []
+        for c in bolum["cumleler"]:
+            if c.get("bekle"):
+                gruplar.append(cur); cur = []
+            else:
+                cur.append(c)
+        gruplar.append(cur)
+        for gi, grup in enumerate(g for g in gruplar if len(g) > 1):
+            metinler = [okunus(c["metin"]) for c in grup]
+            metin = " ".join(metinler)
+            girdi = {"motor": s["motor"], "ses": s["ses"], "model": s.get("model"), "stil": s.get("stil"),
+                     "metin": metin, "blok": True}
+            ham = kapi.cagir("ses", girdi, "mp3", fiyat * len(metin) / 1000, lambda m=metin: islev(m, dict(s)))
+            blok = os.path.join(klasor, f"blok_{gi}.wav")
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", ham, "-ar", "48000", "-ac", "1", blok],
+                           check=True)
+            yollar = bol(blok, metinler, klasor, f"blok_{gi}")
+            if yollar:
+                hazir.update({c["id"]: y for c, y in zip(grup, yollar)})
     for c in bolum["cumleler"]:
         if c.get("bekle"):                              # ayet kartı / tilavet aralığı
             zamanlar[c["id"]] = [round(t, 3), round(t + c["bekle"], 3)]
@@ -58,7 +81,8 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
                 "sonraki": okunus(konusulan[i + 1]["metin"]) if i + 1 < len(konusulan) else ""}
         girdi = {"motor": s["motor"], "ses": s["ses"], "model": s.get("model"), "hiz": s.get("hiz"),
                  "metin": metin, "onceki": aday["onceki"], "sonraki": aday["sonraki"]}
-        ham = kapi.cagir("ses", girdi, "mp3", fiyat * len(metin) / 1000, lambda: islev(metin, aday))
+        ham = hazir.get(c["id"]) or kapi.cagir("ses", girdi, "mp3", fiyat * len(metin) / 1000,
+                                               lambda: islev(metin, aday))
         wav = os.path.join(klasor, f"{c['id']}.wav")
         _kirp(ham, wav)
         sure = _sure(wav)
@@ -69,6 +93,40 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
     birlestir([("sus", ACILIS_SN)] + parcalar + [("sus", KAPANIS_SN)], cikti)
     return {"dosya": cikti, "zamanlar": zamanlar,
             "motor": s["motor"], "ses": s["ses"]}
+
+
+def _sessizlikler(yol: str, esik_db: int = -38, en_az: float = 0.18) -> list[tuple[float, float]]:
+    import re
+    c = subprocess.run(["ffmpeg", "-hide_banner", "-i", yol, "-af", f"silencedetect=noise={esik_db}dB:d={en_az}",
+                        "-f", "null", "-"], capture_output=True, text=True)
+    bas = [float(x) for x in re.findall(r"silence_start: ([0-9.]+)", c.stderr)]
+    bit = [float(x) for x in re.findall(r"silence_end: ([0-9.]+)", c.stderr)]
+    return list(zip(bas, bit))
+
+
+def bol(blok_wav: str, metinler: list[str], klasor: str, onek: str) -> list[str] | None:
+    """Tek parça okunmuş paragrafı cümlelere böler. Cümle sonları, harf sayısına göre beklenen yere en yakın
+    sessizliğe düşer. Uygun sessizlik bulunamazsa None döner (çağıran cümle cümle üretime döner)."""
+    toplam = _sure(blok_wav)
+    sus = [(a, b) for a, b in _sessizlikler(blok_wav) if 0.05 < a and b < toplam - 0.05]
+    harf = [len(m) for m in metinler]
+    kesimler, onceki = [], 0.0
+    for k in range(1, len(metinler)):
+        beklenen = toplam * sum(harf[:k]) / sum(harf)
+        adaylar = [(abs((a + b) / 2 - beklenen) - 0.8 * (b - a), (a + b) / 2) for a, b in sus
+                   if (a + b) / 2 > onceki + 0.4 and abs((a + b) / 2 - beklenen) < max(1.5, 0.25 * toplam / len(metinler))]
+        if not adaylar:
+            return None
+        onceki = min(adaylar)[1]
+        kesimler.append(onceki)
+    sinirlar = [0.0] + kesimler + [toplam]
+    yollar = []
+    for i in range(len(metinler)):
+        ham = os.path.join(klasor, f"{onek}_{i}_ham.wav")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", blok_wav, "-ss", f"{sinirlar[i]:.3f}",
+                        "-to", f"{sinirlar[i + 1]:.3f}", ham], check=True)
+        yollar.append(ham)
+    return yollar
 
 
 def birlestir(parcalar: list[tuple[str, object]], cikti: str) -> None:

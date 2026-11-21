@@ -1,10 +1,11 @@
 {
- "_not": "Hattın ayarları. Ses: kör provada (tur 2) Enceladus seçildi.",
+ "_not": "Hattın ayarları. Ses: kör prova tur 3'te Gemini TTS Enceladus (3.1 flash) seçildi; paragraf tek parça okunur. Tilavet: Sa'd el-Gâmidî (EveryAyah).",
  "butce_usd": 1.5,
  "ses": {
-  "motor": "google",
-  "ses": "tr-TR-Chirp3-HD-Enceladus",
-  "hiz": 0.92
+  "motor": "gemini",
+  "model": "gemini-3.1-flash-tts-preview",
+  "ses": "Enceladus",
+  "blok": true
  },
  "gorsel": {
   "saglayici": "gemini",
@@ -20,6 +21,10 @@
  "fiyatlar": {
   "elevenlabs": 0.08,
   "google": 0.0,
-  "azure": 0.016
+  "azure": 0.016,
+  "gemini": 0.02
+ },
+ "tilavet": {
+  "okuyucu": "Ghamadi_40kbps"
  }
 }
