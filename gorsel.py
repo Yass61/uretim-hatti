@@ -25,7 +25,9 @@ STIL = ("Painterly cinematic realism with visible brushwork and rich surface tex
         "of the frame for captions. 7th century Hejaz setting: mud-brick, palm trunks, woven palm mats, clay, wool.")
 YASAK = ("No human faces. No figures seen from the front; at most distant silhouettes from behind. No text, "
          "letters, calligraphy or signage. No domes, minarets, crescents, arches of later Islamic architecture. "
-         "No modern objects, glass, metal tools, books with printed pages. No halos or light around figures.")
+         "No modern objects, glass, metal tools, books with printed pages. No halos or light around figures. "
+         "No watermark, signature, logo, inscription or carved writing, and no letter-like marks in haze, sky, "
+         "walls or fabric.")
 
 SAGLAYICILAR = {
     #            varsayılan model                   görsel başı USD   anahtar(lar)

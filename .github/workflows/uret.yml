@@ -77,7 +77,7 @@ jobs:
           python3 test_uretim.py
       - name: Önbellek (ödenmiş ses ve görseller)
         if: steps.is.outputs.asama == 'uret'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: onbellek
           key: onbellek-${{ steps.is.outputs.bolum }}-${{ github.run_id }}
@@ -111,6 +111,12 @@ jobs:
           [ "$ASAMA" = "senaryo" ] && bayrak="--senaryo"
           [ "$GONDER" = "false" ] && bayrak="$bayrak --gonderme"
           python3 -u hat.py "bolumler/$BOLUM/bolum.json" $bayrak 2>&1 | grep -v "kaba derinlik" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Önbelleği kaydet (denetim kalsa da; ödenen görsel boşa gitmesin)
+        if: always() && steps.is.outputs.asama == 'uret'
+        uses: actions/cache/save@v4
+        with:
+          path: onbellek
+          key: onbellek-${{ steps.is.outputs.bolum }}-${{ github.run_id }}
       - name: Videoyu ve durumu sakla
         if: always() && steps.is.outputs.asama == 'uret'
         uses: actions/upload-artifact@v4

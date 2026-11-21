@@ -61,7 +61,14 @@ def parcala(metin: str) -> list[str]:
         if len(cur) >= 4 or son or sum(len(x) for x in cur) >= 20:
             parcalar.append(" ".join(cur))
             cur = []
-    return parcalar
+    # Tek kelimelik öbek ekranda yarım saniye bile kalmayabilir: kısa ise bir öncekine eklenir.
+    birlesik: list[str] = []
+    for p in parcalar:
+        if birlesik and len(p.split()) == 1 and len(birlesik[-1]) + len(p) <= 28:
+            birlesik[-1] += " " + p
+        else:
+            birlesik.append(p)
+    return birlesik
 
 
 def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
