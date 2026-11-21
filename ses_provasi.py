@@ -47,6 +47,37 @@ def google(metin: str, aday: dict) -> bytes:
     r.raise_for_status()
     return base64.b64decode(r.json()["audioContent"])
 
+STIL_VARSAYILAN = ("Aşağıdaki metni Türkçe, ağırbaşlı ve sıcak bir sesle, bir hikâye anlatıcısı gibi oku. "
+                   "Acele etme; virgüllerde kısa, noktalarda belirgin dur. Önemli kelimeleri hafifçe vurgula, "
+                   "duygulu ama abartısız ol. Arapça kökenli adları ve terimleri doğru telaffuz et.")
+
+
+def gemini(metin: str, aday: dict) -> bytes:
+    """Gemini TTS: üslup doğal dille verilir. Çıktı 24 kHz PCM; ffmpeg ile mp3'e çevrilir."""
+    import subprocess
+    import tempfile
+
+    import requests
+
+    anahtar = os.environ.get("GEMINI_GORSEL_API_KEY") or os.environ["GEMINI_API_KEY"]
+    model = aday.get("model") or "gemini-3.1-flash-tts-preview"
+    istem = f"{aday.get('stil') or STIL_VARSAYILAN}\n\n{metin}"
+    r = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        params={"key": anahtar},
+        json={"contents": [{"parts": [{"text": istem}]}],
+              "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {
+                  "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": aday["ses"]}}}}},
+        timeout=300)
+    if r.status_code >= 400:
+        raise RuntimeError(f"{r.status_code} {r.text[:300]}")
+    pcm = base64.b64decode(r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]["data"])
+    with tempfile.TemporaryDirectory() as d:
+        open(os.path.join(d, "a.pcm"), "wb").write(pcm)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "s16le", "-ar", "24000", "-ac", "1",
+                        "-i", os.path.join(d, "a.pcm"), "-b:a", "128k", os.path.join(d, "a.mp3")], check=True)
+        return open(os.path.join(d, "a.mp3"), "rb").read()
+
 
 def azure(metin: str, aday: dict) -> bytes:
     import requests
@@ -68,6 +99,7 @@ MOTORLAR = {
     "elevenlabs": (elevenlabs, ["ELEVENLABS_API_KEY"]),
     "google": (google, ["GOOGLE_TTS_API_KEY"]),
     "azure": (azure, ["AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION"]),
+    "gemini": (gemini, ["GEMINI_GORSEL_API_KEY"]),
 }
 
 

@@ -1,0 +1,26 @@
+name: Tilavet provası
+on:
+  workflow_dispatch:
+    inputs:
+      sure: { description: "Sure no", default: "3" }
+      ayet: { description: "Ayet no", default: "92" }
+jobs:
+  prova:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q requests
+      - name: Okuyucuları indir ve Telegram'a gönder
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SURE: ${{ github.event.inputs.sure }}
+          AYET: ${{ github.event.inputs.ayet }}
+        run: |
+          echo "$SURE$AYET" | grep -Eq '^[0-9]+$' || exit 1
+          python3 tilavet.py prova "$SURE" "$AYET"
+      - uses: actions/upload-artifact@v4
+        with: { name: tilavet-anahtar, path: tilavet_prova/anahtar.json }

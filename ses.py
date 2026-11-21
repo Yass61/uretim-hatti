@@ -17,7 +17,7 @@ from okunus import okunus
 
 ACILIS_SN, ARA_SN, KAPANIS_SN = 0.9, 0.55, 0.6
 # Tahminî birim fiyatlar (USD / 1000 harf); ayar.json'daki "fiyatlar" ile ezilir.
-FIYAT = {"elevenlabs": 0.08, "google": 0.0, "azure": 0.016}
+FIYAT = {"elevenlabs": 0.08, "google": 0.0, "azure": 0.016, "gemini": 0.02}
 
 
 def _sure(yol: str) -> float:

@@ -1,69 +1,67 @@
 {
- "_not": "Tur 2: yalnız Google Chirp 3 HD. Tur 1'de Iapetus beğenildi (kaydı tur1 dosyasında). Iapetus iki farklı hızla da var.",
- "tohum": 11,
+ "_not": "Tur 3: Gemini TTS (üslup istemle verilir). Tur 1-2 Chirp 3 HD: düz tonlama bulundu.",
+ "tohum": 33,
  "metin": "Ebû Talha, Medine'de hurmalığı en çok olan Ensârîydi. En sevdiği mal, mescidin karşısındaki Beyruhâ bahçesiydi. Resûlullah oraya girer, güzel suyundan içerdi. Sonra şu ayet indi.",
  "adaylar": [
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Iapetus",
-   "ad": "Iapetus",
-   "etiket": "tur 1'de beğenilen, hız 0.92 (referans)"
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Enceladus",
+   "ad": "Enceladus (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Iapetus",
-   "ad": "Iapetus (hız 0.84)",
-   "etiket": "aynı ses, yavaş",
-   "hiz": 0.84
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Iapetus",
+   "ad": "Iapetus (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Iapetus",
-   "ad": "Iapetus (hız 1.0)",
-   "etiket": "aynı ses, hızlı",
-   "hiz": 1.0
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Charon",
+   "ad": "Charon (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Enceladus",
-   "ad": "Enceladus",
-   "etiket": "erkek, nefesli"
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Sadaltager",
+   "ad": "Sadaltager (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Fenrir",
-   "ad": "Fenrir",
-   "etiket": "erkek, heyecanlı"
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Algenib",
+   "ad": "Algenib (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Puck",
-   "ad": "Puck",
-   "etiket": "erkek, canlı"
+   "motor": "gemini",
+   "model": "gemini-3.1-flash-tts-preview",
+   "ses": "Rasalgethi",
+   "ad": "Rasalgethi (3.1 flash)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Zubenelgenubi",
-   "ad": "Zubenelgenubi",
-   "etiket": "erkek, sıradan"
+   "motor": "gemini",
+   "model": "gemini-2.5-pro-preview-tts",
+   "ses": "Enceladus",
+   "ad": "Enceladus (2.5 pro)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Gacrux",
-   "ad": "Gacrux",
-   "etiket": "kadın, olgun"
+   "motor": "gemini",
+   "model": "gemini-2.5-pro-preview-tts",
+   "ses": "Iapetus",
+   "ad": "Iapetus (2.5 pro)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Sulafat",
-   "ad": "Sulafat",
-   "etiket": "kadın, sıcak"
+   "motor": "gemini",
+   "model": "gemini-2.5-pro-preview-tts",
+   "ses": "Charon",
+   "ad": "Charon (2.5 pro)"
   },
   {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Vindemiatrix",
-   "ad": "Vindemiatrix",
-   "etiket": "kadın, yumuşak"
+   "motor": "gemini",
+   "model": "gemini-2.5-pro-preview-tts",
+   "ses": "Sadaltager",
+   "ad": "Sadaltager (2.5 pro)"
   }
  ]
 }
