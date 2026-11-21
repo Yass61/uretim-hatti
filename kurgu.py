@@ -290,6 +290,23 @@ def kare(t: float, planlar, yazilar, rozetler) -> Image.Image:
     return img
 
 
+
+def ses_duzeyi(yol: str, hedef: float = -14.0, tepe: float = -1.5) -> str:
+    """İki geçişli loudnorm: önce ölçer, sonra ölçülen değerlerle doğrusal düzeltir. Tek geçiş,
+    sessiz aralıkları ve tilaveti olan kayıtlarda hedefin 2-3 dB altında kalıyordu."""
+    import json as _json
+    import subprocess as _sp
+    c = _sp.run(["ffmpeg", "-hide_banner", "-i", yol, "-af",
+                 f"loudnorm=I={hedef}:TP={tepe}:LRA=11:print_format=json", "-f", "null", "-"],
+                capture_output=True, text=True)
+    try:
+        m = _json.loads(c.stderr[c.stderr.rindex("{"):c.stderr.rindex("}") + 1])
+        return (f"loudnorm=I={hedef}:TP={tepe}:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+                f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:"
+                f"linear=true")
+    except (ValueError, KeyError):
+        return f"loudnorm=I={hedef}:TP={tepe}:LRA=11"
+
 def kur(bolum: dict, klasor: str, cikti: str, onizleme: list[float] | None = None) -> dict:
     """Videoyu kurar. Dönen: {"sure", "cumleler", "planlar"}; onizleme verilirse yalnız o anların karesi yazılır."""
     cumleler, planlar, toplam, yazilar, rozetler = hazirla(bolum, klasor)
@@ -307,7 +324,7 @@ def kur(bolum: dict, klasor: str, cikti: str, onizleme: list[float] | None = Non
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-"]
     if ses:                                              # ses videodan kısaysa sonu sessizlikle dolar
-        cmd += ["-i", os.path.join(klasor, ses), "-af", "loudnorm=I=-14:TP=-1.5:LRA=11,apad", "-ar", "48000"]
+        cmd += ["-i", os.path.join(klasor, ses), "-af", f"{ses_duzeyi(os.path.join(klasor, ses))},apad", "-ar", "48000"]
     else:
         cmd += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
     cmd += ["-c:v", "libx264", "-crf", "20", "-maxrate", "6M", "-bufsize", "12M", "-preset", "medium",

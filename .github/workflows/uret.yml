@@ -10,11 +10,11 @@ on:
         required: true
         default: "ebu-talha"
       asama:
-        description: "senaryo = denetle ve senaryoyu onaya gönder · uret = videoyu üret ve onaya gönder · tahmin = yalnız maliyet"
+        description: "senaryo = senaryoyu onaya gönder · uret = videoyu üret ve onaya gönder · yayinla = son videoyu Postproxy'ye gönder · tahmin = yalnız maliyet"
         required: true
         default: "tahmin"
         type: choice
-        options: [tahmin, senaryo, uret]
+        options: [tahmin, senaryo, uret, yayinla]
       gonder:
         description: "Telegram'a gönder"
         type: boolean
@@ -44,6 +44,7 @@ jobs:
       RECRAFT_API_KEY: ${{ secrets.RECRAFT_API_KEY }}
       GEMINI_GORSEL_API_KEY: ${{ secrets.GEMINI_GORSEL_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      POSTPROXY_API_KEY: ${{ secrets.POSTPROXY_API_KEY }}
       # Dışarıdan gelen değerler komuta gömülmez, ortam değişkeni olarak okunur.
       GIRDI_BOLUM: ${{ github.event.inputs.bolum }}
       GIRDI_ASAMA: ${{ github.event.inputs.asama }}
@@ -98,8 +99,20 @@ jobs:
               https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx
           fi
           ls -la modeller
+      - name: Son videoyu getir (yayın için)
+        if: steps.is.outputs.asama == 'yayinla'
+        uses: actions/cache/restore@v4
+        with:
+          path: bolumler/${{ steps.is.outputs.bolum }}/uretim/video.mp4
+          key: video-${{ steps.is.outputs.bolum }}-yok
+          restore-keys: video-${{ steps.is.outputs.bolum }}-
+      - name: Yayınla (Postproxy)
+        if: steps.is.outputs.asama == 'yayinla'
+        env:
+          BOLUM: ${{ steps.is.outputs.bolum }}
+        run: python3 paylas.py "bolumler/$BOLUM/bolum.json"
       - name: Hattı çalıştır
-        if: steps.is.outputs.asama != 'yok'
+        if: steps.is.outputs.asama != 'yok' && steps.is.outputs.asama != 'yayinla'
         env:
           BOLUM: ${{ steps.is.outputs.bolum }}
           ASAMA: ${{ steps.is.outputs.asama }}
@@ -117,6 +130,12 @@ jobs:
         with:
           path: onbellek
           key: onbellek-${{ steps.is.outputs.bolum }}-${{ github.run_id }}
+      - name: Videoyu yayın için sakla
+        if: success() && steps.is.outputs.asama == 'uret'
+        uses: actions/cache/save@v4
+        with:
+          path: bolumler/${{ steps.is.outputs.bolum }}/uretim/video.mp4
+          key: video-${{ steps.is.outputs.bolum }}-${{ github.run_id }}
       - name: Videoyu ve durumu sakla
         if: always() && steps.is.outputs.asama == 'uret'
         uses: actions/upload-artifact@v4

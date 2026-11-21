@@ -28,12 +28,12 @@ def coz(ortam=os.environ) -> dict:
         if not os.path.exists(os.path.join("bolumler", ad, "bolum.json")):
             raise SystemExit(f"bölüm yok: {ad}")
         return {"bolum": ad, "tur": tur, "karar": karar,
-                "asama": "uret" if (tur, karar) == ("s", "onay") else "yok", "gonder": "true"}
+                "asama": {("s", "onay"): "uret", ("v", "onay"): "yayinla"}.get((tur, karar), "yok"), "gonder": "true"}
     ad = ortam.get("GIRDI_BOLUM") or ""
     if not GUVENLI.match(ad):
         raise SystemExit(f"geçersiz bölüm adı: {ad!r}")
     asama = ortam.get("GIRDI_ASAMA") or "tahmin"
-    if asama not in ("tahmin", "senaryo", "uret"):
+    if asama not in ("tahmin", "senaryo", "uret", "yayinla"):
         raise SystemExit(f"geçersiz aşama: {asama!r}")
     return {"bolum": ad, "tur": "", "karar": "", "asama": asama,
             "gonder": "false" if ortam.get("GIRDI_GONDER") == "false" else "true"}
@@ -43,7 +43,7 @@ CEVAP = {
     ("s", "onay"): "Senaryo onaylandı. Üretim başladı; video hazır olunca buraya gelecek.",
     ("s", "red"): "Senaryo reddedildi. Bölüm üretilmeyecek.",
     ("s", "not"): "Notun kaydedildi. Senaryo düzeltilip yeniden onaya gelecek.",
-    ("v", "onay"): "Video onaylandı ve yayına hazır olarak işaretlendi.",
+    ("v", "onay"): "Video onaylandı; Postproxy'ye gönderiliyor.",
     ("v", "red"): "Video reddedildi.",
     ("v", "not"): "Notun kaydedildi. Video düzeltilip yeniden onaya gelecek.",
 }
