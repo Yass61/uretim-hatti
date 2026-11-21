@@ -1,7 +1,11 @@
 {
- "_not": "Hattın ayarları. Ses, kör provadan sonra seçilir; seçilene kadar 'ses' boş kalır ve hat sessiz kurar.",
+ "_not": "Hattın ayarları. Ses: kör provada (tur 2) Enceladus seçildi.",
  "butce_usd": 1.5,
- "ses": null,
+ "ses": {
+  "motor": "google",
+  "ses": "tr-TR-Chirp3-HD-Enceladus",
+  "hiz": 0.92
+ },
  "gorsel": {
   "saglayici": "gemini",
   "aday": 2,
