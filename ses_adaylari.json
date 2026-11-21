@@ -1,115 +1,69 @@
 {
- "_not": "Etiketler ElevenLabs kütüphanesindeki tanımlardan; sesler dinlenmeden seçildi. Google ses adları tr-TR Chirp 3 HD listesinden. Azure HD ses adı ilk çalışmada doğrulanacak. Fish Audio ve Gemini TTS sonra eklenecek.",
- "tohum": 2026,
+ "_not": "Tur 2: yalnız Google Chirp 3 HD. Tur 1'de Iapetus beğenildi (kaydı tur1 dosyasında). Iapetus iki farklı hızla da var.",
+ "tohum": 11,
  "metin": "Ebû Talha, Medine'de hurmalığı en çok olan Ensârîydi. En sevdiği mal, mescidin karşısındaki Beyruhâ bahçesiydi. Resûlullah oraya girer, güzel suyundan içerdi. Sonra şu ayet indi.",
  "adaylar": [
-  {
-   "motor": "elevenlabs",
-   "ses": "5nr6ATQepuidiLb6OT3B",
-   "ad": "Ozan Karaca",
-   "etiket": "zengin, sıcak, sakin"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "75SIZa3vvET95PHhf1yD",
-   "ad": "Ahmet",
-   "etiket": "derin, güven veren, sakin"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "RXCCWbOxP7Hisa63Xsv5",
-   "ad": "Adam",
-   "etiket": "sakin, dinlendirici"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "j82ax9yhzfYwq9lDvRWL",
-   "ad": "Kadir Kayışcı",
-   "etiket": "derin, olgun, yumuşak"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "ctoYieZ4J7WwcdhujpMq",
-   "ad": "Doga",
-   "etiket": "sesli kitap"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "DpEiQMnL9WxMsymCsjPY",
-   "ad": "Emrullah Uzun",
-   "etiket": "hikâye anlatıcısı"
-  },
-  {
-   "motor": "elevenlabs",
-   "ses": "mF7tIc9VLrznhGooGjaT",
-   "ad": "Seyfullah Kartal",
-   "etiket": "yaşlı, dolgun"
-  },
-  {
-   "motor": "azure",
-   "ses": "tr-TR-AhmetNeural",
-   "ad": "Ahmet (Azure)",
-   "etiket": "standart erkek"
-  },
-  {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Charon",
-   "ad": "Charon",
-   "etiket": "Chirp 3 HD erkek: bilgilendirici, ağırbaşlı"
-  },
-  {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Orus",
-   "ad": "Orus",
-   "etiket": "Chirp 3 HD erkek: kararlı, olgun"
-  },
-  {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Rasalgethi",
-   "ad": "Rasalgethi",
-   "etiket": "Chirp 3 HD erkek: bilgilendirici, derin"
-  },
-  {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Alnilam",
-   "ad": "Alnilam",
-   "etiket": "Chirp 3 HD erkek: kararlı, net"
-  },
-  {
-   "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Algenib",
-   "ad": "Algenib",
-   "etiket": "Chirp 3 HD erkek: kalın, tok"
-  },
   {
    "motor": "google",
    "ses": "tr-TR-Chirp3-HD-Iapetus",
    "ad": "Iapetus",
-   "etiket": "Chirp 3 HD erkek: açık, sakin"
+   "etiket": "tur 1'de beğenilen, hız 0.92 (referans)"
   },
   {
    "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Schedar",
-   "ad": "Schedar",
-   "etiket": "Chirp 3 HD erkek: dengeli, akıcı"
+   "ses": "tr-TR-Chirp3-HD-Iapetus",
+   "ad": "Iapetus (hız 0.84)",
+   "etiket": "aynı ses, yavaş",
+   "hiz": 0.84
   },
   {
    "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Umbriel",
-   "ad": "Umbriel",
-   "etiket": "Chirp 3 HD erkek: rahat, yumuşak"
+   "ses": "tr-TR-Chirp3-HD-Iapetus",
+   "ad": "Iapetus (hız 1.0)",
+   "etiket": "aynı ses, hızlı",
+   "hiz": 1.0
   },
   {
    "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Sadaltager",
-   "ad": "Sadaltager",
-   "etiket": "Chirp 3 HD erkek: bilgili, güven veren"
+   "ses": "tr-TR-Chirp3-HD-Enceladus",
+   "ad": "Enceladus",
+   "etiket": "erkek, nefesli"
   },
   {
    "motor": "google",
-   "ses": "tr-TR-Chirp3-HD-Achird",
-   "ad": "Achird",
-   "etiket": "Chirp 3 HD erkek: sıcak, dostane"
+   "ses": "tr-TR-Chirp3-HD-Fenrir",
+   "ad": "Fenrir",
+   "etiket": "erkek, heyecanlı"
+  },
+  {
+   "motor": "google",
+   "ses": "tr-TR-Chirp3-HD-Puck",
+   "ad": "Puck",
+   "etiket": "erkek, canlı"
+  },
+  {
+   "motor": "google",
+   "ses": "tr-TR-Chirp3-HD-Zubenelgenubi",
+   "ad": "Zubenelgenubi",
+   "etiket": "erkek, sıradan"
+  },
+  {
+   "motor": "google",
+   "ses": "tr-TR-Chirp3-HD-Gacrux",
+   "ad": "Gacrux",
+   "etiket": "kadın, olgun"
+  },
+  {
+   "motor": "google",
+   "ses": "tr-TR-Chirp3-HD-Sulafat",
+   "ad": "Sulafat",
+   "etiket": "kadın, sıcak"
+  },
+  {
+   "motor": "google",
+   "ses": "tr-TR-Chirp3-HD-Vindemiatrix",
+   "ad": "Vindemiatrix",
+   "etiket": "kadın, yumuşak"
   }
  ]
 }
