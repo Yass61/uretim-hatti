@@ -54,8 +54,10 @@ def ayet_oku(sure: int, ayet: int) -> dict:
 
 # ------------------------------------------------------------ zaman çizelgesi
 def parcala(metin: str) -> list[str]:
-    """Cümleyi 3-4 kelimelik altyazı öbeklerine böler."""
+    """Cümleyi 3-4 kelimelik altyazı öbeklerine böler. Kısa cümle bölünmez; tek kelimelik öbek kalmaz."""
     kelimeler, parcalar, cur = metin.split(), [], []
+    if len(kelimeler) <= 4 or len(metin) <= 30:
+        return [metin] if metin else []
     for i, k in enumerate(kelimeler):
         cur.append(k)
         son = k[-1] in ",.;:!?”" or i == len(kelimeler) - 1
@@ -75,6 +77,9 @@ def parcala(metin: str) -> list[str]:
                 birlesik[-1] = " ".join(onceki[:-1])
                 p = onceki[-1] + " " + p
         birlesik.append(p)
+    if len(birlesik) > 1 and len(birlesik[0].split()) == 1:   # baştaki tek kelime ("“Hayır,") sonrakine katılır
+        birlesik[1] = birlesik[0] + " " + birlesik[1]
+        birlesik.pop(0)
     return birlesik
 
 
@@ -126,7 +131,16 @@ def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
             bas, bit = zamanlar[c["id"]]
             ps = parcala(c.get("metin") or "")
             duraklar = ((bolum.get("ses") or {}).get("duraklar") or {}).get(c["id"]) or []
-            for p, (u, v) in zip(ps, obek_zamanlari(ps, bas, bit, duraklar)):
+            zs = list(obek_zamanlari(ps, bas, bit, duraklar))
+            while len(ps) > 1:                           # hâlâ kısa kalan öbek komşusuyla birleşir
+                k = min(range(len(ps)), key=lambda j: zs[j][1] - zs[j][0])
+                if zs[k][1] - zs[k][0] >= EN_AZ_OBEK:
+                    break
+                j = k - 1 if k > 0 else k + 1
+                a, b = min(j, k), max(j, k)
+                ps[a:b + 1] = [ps[a] + " " + ps[b]]
+                zs[a:b + 1] = [(zs[a][0], zs[b][1])]
+            for p, (u, v) in zip(ps, zs):
                 parcalar.append({"metin": p, "bas": u, "bit": v})
             t = bit
         elif c.get("bekle"):

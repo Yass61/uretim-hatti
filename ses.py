@@ -122,6 +122,11 @@ def bol(blok_wav: str, metinler: list[str], klasor: str, onek: str) -> list[str]
         onceki = min(adaylar)[1]
         kesimler.append(onceki)
     sinirlar = [0.0] + kesimler + [toplam]
+    for i, m in enumerate(metinler):                      # bir cümle beklenenin yarısından kısa ya da iki katından
+        beklenen = toplam * harf[i] / sum(harf)           # uzunsa kesim yanlış yere düşmüştür: güvenme
+        gercek = sinirlar[i + 1] - sinirlar[i]
+        if not (0.55 * beklenen <= gercek <= 1.8 * beklenen):
+            return None
     yollar = []
     for i in range(len(metinler)):
         ham = os.path.join(klasor, f"{onek}_{i}_ham.wav")
