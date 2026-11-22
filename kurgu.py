@@ -36,6 +36,7 @@ KREM, ALTIN, KAHVE = (248, 238, 218), (220, 194, 131), (81, 65, 40)
 
 # Sakin anlatım ritmi (pilot sonrası karar): ses yokken süre tahmini
 SN_KELIME, SN_PARCA, SN_CUMLE_SONU, SN_ARA, GECIS = 0.43, 0.08, 0.30, 0.70, 0.7
+EN_AZ_OBEK = 0.75                                    # altyazı öbeği ekranda en az bu kadar kalır
 
 
 def yazi(yol: str, boyut: int) -> ImageFont.FreeTypeFont:
@@ -93,14 +94,21 @@ def obek_zamanlari(ps: list[str], bas: float, bit: float, duraklar: list[float])
             if yakin is not None and abs(bas + yakin - sinir[i]) < max(0.8, 0.25 * sure):
                 capa[i] = bas + yakin
                 kullanildi.add(yakin)
-    sirali = sorted(capa)
-    for a, b in zip(sirali, sirali[1:]):                 # çapalar arasında orantılı dağıt
-        w = sum(agirlik[a:b]) or 1
-        u = capa[a]
-        for k in range(a, b):
-            sinir[k] = u
-            u += (capa[b] - capa[a]) * agirlik[k] / w
-    sinir[len(ps)] = bit
+    while True:
+        sirali = sorted(capa)
+        for a, b in zip(sirali, sirali[1:]):             # çapalar arasında orantılı dağıt
+            w = sum(agirlik[a:b]) or 1
+            u = capa[a]
+            for k in range(a, b):
+                sinir[k] = u
+                u += (capa[b] - capa[a]) * agirlik[k] / w
+        sinir[len(ps)] = bit
+        kisa = [k for k in range(len(ps)) if sinir[k + 1] - sinir[k] < EN_AZ_OBEK]
+        # çok kısa kalan öbeğe komşu bir durak çapası varsa o çapa bırakılır, orantıya dönülür
+        bos = [i for k in kisa for i in (k, k + 1) if i in capa and 0 < i < len(ps)]
+        if not bos:
+            break
+        del capa[bos[0]]
     return [(sinir[k], sinir[k + 1]) for k in range(len(ps))]
 
 def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
