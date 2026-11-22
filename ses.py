@@ -67,8 +67,19 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", ham, "-ar", "48000", "-ac", "1", blok],
                            check=True)
             yollar = bol(blok, metinler, klasor, f"blok_{gi}")
-            if yollar:
-                hazir.update({c["id"]: y for c, y in zip(grup, yollar)})
+            if yollar:                                   # kırpılmış konuşma hızı makul mü? (harf/sn)
+                hizlar = []
+                for y, m in zip(yollar, metinler):
+                    deneme = y.replace("_ham.wav", "_olc.wav")
+                    _kirp(y, deneme)
+                    hizlar.append(len(m) / max(_sure(deneme), 0.05))
+                ort = sum(len(m) for m in metinler) / max(sum(len(m) / h for m, h in zip(metinler, hizlar)), 0.05)
+                if all(0.6 * ort <= h <= 1.6 * ort for h in hizlar):
+                    hazir.update({c["id"]: y for c, y in zip(grup, yollar)})
+                else:
+                    print(f"[ses] paragraf {gi} bölmesi şüpheli (harf/sn: {[round(h) for h in hizlar]}); cümle cümle üretiliyor")
+            else:
+                print(f"[ses] paragraf {gi} sessizliklerden bölünemedi; cümle cümle üretiliyor")
     for c in bolum["cumleler"]:
         if c.get("bekle"):                              # ayet kartı / tilavet aralığı
             zamanlar[c["id"]] = [round(t, 3), round(t + c["bekle"], 3)]
