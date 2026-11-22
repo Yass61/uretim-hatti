@@ -1,0 +1,252 @@
+{
+ "baslik": "Bir sahabe, bir ayet: Sâbit b. Kays ve sesini kısan adam",
+ "seri": "Bir sahabe, bir ayet",
+ "alt_baslik": "Sâbit b. Kays · Hucurât 2",
+ "ayet": [
+  49,
+  2
+ ],
+ "ayet_etiketi": "Hucurât, 2",
+ "kaynak_satirlari": [
+  "Buhârî 3613 · Müslim, Îmân 187",
+  "Rûhu'l-Beyân, Hucurât 2. ayet",
+  "Ayet metni: Tanzil · Meal: Elmalılı"
+ ],
+ "paylasim_metni": "Bir ayet indi, Sâbit b. Kays evine kapandı. Resûlullah'ın cevabı ise bambaşkaydı.",
+ "cumleler": [
+  {
+   "id": "s1",
+   "metin": "Bir ayet indi, o da kendini evine kapattı.",
+   "kaynaksiz": "kanca"
+  },
+  {
+   "id": "s2",
+   "metin": "Sâbit b. Kays'ın sesi doğuştan gürdü.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s3",
+   "metin": "Kulağında ağırlık vardı; konuşurken sesi yükselirdi.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s4",
+   "metin": "Sonra şu ayet indi:",
+   "kaynaksiz": "köprü",
+   "altyazi": false
+  },
+  {
+   "id": "tilavet",
+   "bekle": 9.0
+  },
+  {
+   "id": "s5",
+   "metin": "Sâbit evine kapandı, Resûlullah'ın yanına gelmez oldu.",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s6",
+   "metin": "Resûlullah sordu: “Sâbit'e ne oldu, hasta mı?”",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s7",
+   "metin": "Komşusu Sa'd b. Muâz yanına gitti.",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s8",
+   "metin": "Sâbit başını önüne eğmiş oturuyordu.",
+   "kaynak": "Buhârî 3613"
+  },
+  {
+   "id": "s9",
+   "metin": "“Aranızda Resûlullah'a karşı sesi en yüksek olan benim.”",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s10",
+   "metin": "“Amelim boşa gitti, ben cehennemliklerdenim.”",
+   "kaynak": "Buhârî 3613"
+  },
+  {
+   "id": "s11",
+   "metin": "Resûlullah'ın cevabı geldi:",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s12",
+   "metin": "“Hayır, o cennetliklerdendir.”",
+   "kaynak": "Müslim, Îmân 187"
+  },
+  {
+   "id": "s13",
+   "metin": "Rûhu'l-Beyân'da müjdenin devamı da geçer:",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s14",
+   "metin": "“İyi yaşayacak, iyi öleceksin.”",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s15",
+   "metin": "Sâbit, Yemâme'de şehit düştü.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s16",
+   "metin": "Rivayete göre şehadetinden sonra bir sahabinin rüyasına girdi.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s17",
+   "metin": "Zırhının nerede olduğunu söyledi, borcunu ve vasiyetini bildirdi.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s18",
+   "metin": "Zırh tarif edilen yerde bulundu; Hz. Ebû Bekir vasiyeti uyguladı.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s19",
+   "metin": "İmam Mâlik der ki:",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s20",
+   "metin": "“Sahibinin ölümünden sonra uygulanan başka bir vasiyet bilmiyorum.”",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "id": "s21",
+   "metin": "Sesini Resûlullah için kısan, sözünü ölümünden sonra da dinletti.",
+   "kaynaksiz": "tefekkür"
+  }
+ ],
+ "planlar": [
+  {
+   "cumle": [
+    "s1"
+   ],
+   "istem": "A heavy palm-wood door of a mud-brick house at dusk, shut tight, a thin line of warm lamplight glowing beneath it, the narrow dusty lane in front empty, long blue shadows."
+  },
+  {
+   "cumle": [
+    "s2",
+    "s3"
+   ],
+   "istem": "Inside an early simple mosque built of palm trunks with a roof of palm fronds, slanting shafts of light falling through gaps in the roof onto a packed-earth floor, quiet and empty, warm dust in the air."
+  },
+  {
+   "kart": "ayet",
+   "cumle": [
+    "s4",
+    "tilavet"
+   ]
+  },
+  {
+   "cumle": [
+    "s5"
+   ],
+   "istem": "A dim mud-brick room with its wooden shutter closed, a reed mat on the floor, a clay water jug and a folded cloth beside it, one thin line of daylight across the floor."
+  },
+  {
+   "cumle": [
+    "s6",
+    "s7"
+   ],
+   "istem": "A narrow lane in an old oasis town between sunlit mud-brick walls in the afternoon, a palm tree leaning over a wall, the lane leading toward a closed wooden door."
+  },
+  {
+   "cumle": [
+    "s8",
+    "s9",
+    "s10"
+   ],
+   "hareket": "yaklas",
+   "istem": "Close view of a reed mat on the floor of a dark mud-brick room, a single narrow beam of light falling across it, dust floating in the beam, everything else in deep shadow."
+  },
+  {
+   "cumle": [
+    "s11",
+    "s12"
+   ],
+   "huzme": 0.25,
+   "isik_x": 0.5,
+   "isik_y": 0.3,
+   "istem": "The wooden door of a mud-brick room swung wide open, bright golden daylight flooding in across the earthen floor and the reed mat, a palm tree visible outside."
+  },
+  {
+   "kart": "alinti",
+   "cumle": [
+    "s13",
+    "s14"
+   ],
+   "metin": "İyi yaşayacak, iyi öleceksin ve cennet ehlindensin.",
+   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "kart": "harita",
+   "cumle": [
+    "s15"
+   ],
+   "baslik": "Medine'den Yemâme'ye",
+   "noktalar": [
+    {
+     "ad": "Medine",
+     "enlem": 24.47,
+     "boylam": 39.61
+    },
+    {
+     "ad": "Yemâme",
+     "enlem": 24.9,
+     "boylam": 46.4
+    },
+    {
+     "ad": "Mekke",
+     "enlem": 21.42,
+     "boylam": 39.83
+    }
+   ],
+   "rota": [
+    "Medine",
+    "Yemâme"
+   ]
+  },
+  {
+   "cumle": [
+    "s16",
+    "s17"
+   ],
+   "istem": "An empty desert camp at first light on a wide plain: a single tent, a tethered horse grazing beside it, an overturned clay cooking pot lying on the sand, pale sky and low dunes in the distance."
+  },
+  {
+   "cumle": [
+    "s18"
+   ],
+   "istem": "A low wooden writing table lit by a clay oil lamp at night: a reed pen, a small inkwell and an unrolled parchment with a wax seal broken open, mud-brick wall behind."
+  },
+  {
+   "kart": "alinti",
+   "cumle": [
+    "s19",
+    "s20"
+   ],
+   "metin": "Sahibinin ölümünden sonra uygulanan bundan başka bir vasiyet bilmiyorum.",
+   "kaynak": "İmam Mâlik · Rûhu'l-Beyân, Hucurât 2"
+  },
+  {
+   "cumle": [
+    "s21"
+   ],
+   "hareket": "uzaklas",
+   "istem": "A quiet palm grove at dusk seen from a low hill, the last golden light on the fronds, a calm deep blue sky with the first star above."
+  },
+  {
+   "kart": "son",
+   "sure": 3.5
+  }
+ ]
+}

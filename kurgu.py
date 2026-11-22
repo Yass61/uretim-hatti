@@ -244,6 +244,124 @@ def rozet(metin: str) -> Image.Image:
     return ov
 
 
+
+# ------------------------------------------------- kodla canlandırılan kartlar
+# Bilgi sahneleri görsel modeli çağırmaz: harita ve alıntı kodla çizilir, her karede canlanır.
+# Maliyetleri sıfır, yazıları her zaman keskin ve doğru.
+KIYI = [(34.4, 32.0), (34.9, 29.5), (35.69, 27.35), (36.47, 26.23), (37.27, 25.05), (38.06, 24.09),
+        (39.03, 22.80), (39.17, 21.49), (40.27, 20.15), (41.0, 19.0), (42.6, 16.0), (43.4, 12.6)]   # Kızıldeniz doğu kıyısı (temsilî)
+
+
+def _yumusak(x: float) -> float:
+    x = min(max(x, 0.0), 1.0)
+    return x * x * (3 - 2 * x)
+
+
+def harita_karti(p: dict):
+    """p: {"kart":"harita","noktalar":[{"ad","enlem","boylam"}],"rota":[ad, ad],"baslik":?}
+    Döner: (u, sn) -> kare. Rota çizgisi ilk %55'te çizilir, varış noktası atar."""
+    nok = {n["ad"]: n for n in p["noktalar"]}
+    boy = [n["boylam"] for n in p["noktalar"]]
+    en = [n["enlem"] for n in p["noktalar"]]
+    b0, b1 = min(boy) - 1.6, max(boy) + 1.6
+    orta = (min(en) + max(en)) / 2
+    olcek = 640 / (b1 - b0)                               # piksel / derece; harita çerçevenin içinde kalır
+    def xy(boylam: float, enlem: float) -> tuple[float, float]:
+        return 220 + (boylam - b0) * olcek, 960 - (enlem - orta) * olcek * 1.1
+    taban = zemin()
+    deniz = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(deniz)
+    kiyi = [xy(b, e) for b, e in KIYI]
+    dd.polygon([(-2000, kiyi[0][1])] + kiyi + [(-2000, kiyi[-1][1])], fill=(24, 33, 40, 255))
+    for e in range(int(orta) - 8, int(orta) + 9, 2):     # silik enlem çizgileri
+        y = xy(b0, e)[1]
+        dd.line([(0, y), (W, y)], fill=(243, 234, 219, 22), width=1)
+    dd.line(kiyi, fill=ALTIN + (150,), width=3)
+    maske = Image.new("L", (W, H), 0)                     # deniz ve çizgiler yalnız iç çerçevede
+    ImageDraw.Draw(maske).rounded_rectangle([152, 272, W - 152, H - 272], 26, fill=255)
+    taban.paste(deniz, (0, 0), Image.fromarray(np.minimum(np.asarray(maske), np.asarray(deniz.getchannel("A")))))
+    d = ImageDraw.Draw(taban, "RGBA")
+    d.text((W / 2, 400), p.get("baslik", ""), font=yazi(F_KALIN, 58), fill=KREM, anchor="mm")
+    d.text((W - 190, 1610), "Temsilî harita", font=yazi(F_ORTA, 28), fill=(205, 184, 154), anchor="rm")
+    for kb, ke in KIYI:                                   # etiket, denizin çerçeve içinde yeterince geniş yerine
+        kx, ky = xy(kb, ke)
+        if 330 < ky < H - 330 and kx - 152 > 190:
+            d.text(((152 + kx) / 2, ky), "Kızıldeniz", font=yazi(F_ORTA, 30), fill=(150, 165, 170), anchor="mm")
+            break
+    for n in p["noktalar"]:                               # rota dışındaki noktalar silik yön işareti
+        if n["ad"] not in p["rota"]:
+            q = xy(n["boylam"], n["enlem"])
+            d.ellipse([q[0] - 7, q[1] - 7, q[0] + 7, q[1] + 7], fill=(205, 184, 154, 150))
+            d.text((q[0], q[1] + 40), n["ad"], font=yazi(F_ORTA, 32), fill=(205, 184, 154, 170), anchor="ms")
+    a, b = nok[p["rota"][0]], nok[p["rota"][1]]
+    pa, pb = xy(a["boylam"], a["enlem"]), xy(b["boylam"], b["enlem"])
+    fnt = yazi(F_KALIN, 46)
+
+    def ciz(u: float, sn: float) -> np.ndarray:
+        img = taban.copy()
+        k = ImageDraw.Draw(img, "RGBA")
+        r = _yumusak(u / 0.55)
+        uc = (pa[0] + (pb[0] - pa[0]) * r, pa[1] + (pb[1] - pa[1]) * r)
+        n = 40                                            # kesik çizgi
+        for i in range(n):
+            t0, t1 = i / n, (i + 0.55) / n
+            if t0 > r:
+                break
+            t1 = min(t1, r)
+            k.line([(pa[0] + (pb[0] - pa[0]) * t0, pa[1] + (pb[1] - pa[1]) * t0),
+                    (pa[0] + (pb[0] - pa[0]) * t1, pa[1] + (pb[1] - pa[1]) * t1)], fill=ALTIN, width=6)
+        for ad, q, gor in ((a["ad"], pa, 1.0), (b["ad"], pb, _yumusak((u - 0.5) / 0.15))):
+            if gor <= 0:
+                continue
+            al = int(255 * gor)
+            k.ellipse([q[0] - 14, q[1] - 14, q[0] + 14, q[1] + 14], fill=ALTIN + (al,))
+            k.text((q[0], q[1] - 44), ad, font=fnt, fill=KREM + (al,), anchor="ms")
+        if r < 1:
+            k.ellipse([uc[0] - 9, uc[1] - 9, uc[0] + 9, uc[1] + 9], fill=KREM)
+        else:                                             # varış noktası halka halka atar
+            f = (sn * 0.9) % 1.0
+            rr = 16 + 46 * f
+            k.ellipse([pb[0] - rr, pb[1] - rr, pb[0] + rr, pb[1] + rr], outline=ALTIN + (int(200 * (1 - f)),), width=4)
+        return np.asarray(img)
+    return ciz
+
+
+def alinti_karti(p: dict):
+    """p: {"kart":"alinti","metin":"...","kaynak":"..."}. Kelimeler sırayla belirir (ilk %60)."""
+    taban = zemin()
+    d = ImageDraw.Draw(taban)
+    boyut = 74
+    while True:
+        fnt = yazi(F_SERIF, boyut)
+        satirlar = satirla(d, p["metin"].split(), fnt, 760)
+        if len(satirlar) * boyut * 1.45 <= 760 or boyut <= 44:
+            break
+        boyut -= 4
+    d.text((W / 2, 560), "“", font=yazi(F_SERIF, 220), fill=ALTIN, anchor="mm")
+    yuk = len(satirlar) * boyut * 1.45
+    y0 = 960 - yuk / 2
+    konum, sira = [], 0
+    for si, sat in enumerate(satirlar):
+        x = (W - d.textlength(sat, font=fnt)) / 2
+        for kel in sat.split():
+            konum.append((x, y0 + si * boyut * 1.45, kel, sira))
+            x += d.textlength(kel + " ", font=fnt)
+            sira += 1
+    kaynak_y = y0 + yuk + 90
+    d.line([(W / 2 - 90, kaynak_y - 30), (W / 2 + 90, kaynak_y - 30)], fill=ALTIN, width=3)
+    d.text((W / 2, kaynak_y + 20), p.get("kaynak", ""), font=yazi(F_ORTA, 36), fill=ALTIN, anchor="mm")
+    toplam = max(sira, 1)
+
+    def ciz(u: float, sn: float) -> np.ndarray:
+        img = taban.copy()
+        k = ImageDraw.Draw(img, "RGBA")
+        for x, y, kel, i in konum:
+            g = _yumusak((u / 0.6 - i / toplam) * toplam / 3)
+            if g > 0:
+                k.text((x, y + (1 - g) * 12), kel, font=fnt, fill=KREM + (int(255 * g),), anchor="la")
+        return np.asarray(img)
+    return ciz
+
 # --------------------------------------------------------------------- kurgu
 SIRA = ["yaklas", "saga", "yuksel", "sola", "capraz", "uzaklas"]
 
@@ -268,6 +386,10 @@ def hazirla(bolum: dict, klasor: str):
             p["sabit"] = np.asarray(ayet_karti(bolum))
         elif p.get("kart") == "son":
             p["sabit"] = np.asarray(son_kart(bolum))
+        elif p.get("kart") == "harita":
+            p["canli"] = harita_karti(p)
+        elif p.get("kart") == "alinti":
+            p["canli"] = alinti_karti(p)
         else:
             g = gorsel_yukle(os.path.join(klasor, p["gorsel"]))
             dyol = os.path.join(klasor, p["derinlik"]) if p.get("derinlik") else None
@@ -300,6 +422,9 @@ def soluk(ov: Image.Image, a: float) -> Image.Image:
 def plan_karesi(p: dict, t: float) -> np.ndarray:
     if "sabit" in p:
         return p["sabit"]
+    if "canli" in p:
+        sure = max(p["bit"] - p["bas"], 0.1)
+        return p["canli"](min(max((t - p["bas"]) / sure, 0.0), 1.0), max(t - p["bas"], 0.0))
     sure = max(p["bit"] - p["bas"], 0.1) + GECIS          # erime boyunca hareket sürsün
     return p["motor"].kare((t - p["bas"]) / sure, t - p["bas"])
 

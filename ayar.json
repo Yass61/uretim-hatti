@@ -1,5 +1,5 @@
 {
- "_not": "Hattın ayarları. Ses: kör prova tur 3'te Gemini TTS Enceladus (3.1 flash) seçildi; paragraf tek parça okunur. Tilavet: Sa'd el-Gâmidî (EveryAyah).",
+ "_not": "Hattın ayarları. Ses: kör prova tur 3'te Gemini TTS Enceladus (3.1 flash) seçildi; paragraf tek parça okunur. Tilavet: Sa'd el-Gâmidî (EveryAyah). Görsel: sahne başına 1 aday; bilgi sahneleri (ayet, harita, alıntı, son) kodla çizilir.",
  "butce_usd": 1.5,
  "ses": {
   "motor": "gemini",
@@ -9,7 +9,7 @@
  },
  "gorsel": {
   "saglayici": "gemini",
-  "aday": 2,
+  "aday": 1,
   "_not": "saglayici: gemini | recraft | fal. Model ya da fiyat değişirse 'saglayicilar' altında ezilir; boşsa gorsel.py'deki varsayılanlar geçerli.",
   "saglayicilar": {}
  },

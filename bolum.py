@@ -63,8 +63,17 @@ def denetle(bolum: dict, klasor: str | None = None, kuran_var=None) -> tuple[lis
     # planlar
     gorulen: list[str] = []
     for i, p in enumerate(planlar, start=1):
-        if p.get("kart") not in (None, "ayet", "son"):
+        if p.get("kart") not in (None, "ayet", "son", "harita", "alinti"):
             h.append(f"plan {i}: bilinmeyen kart türü '{p.get('kart')}'")
+        if p.get("kart") == "harita":
+            adlar = {n.get("ad") for n in p.get("noktalar") or []}
+            if len(p.get("rota") or []) != 2 or not set(p["rota"]) <= adlar:
+                h.append(f"plan {i}: harita kartında 'rota' iki nokta adı olmalı ve 'noktalar'da bulunmalı")
+        if p.get("kart") == "alinti":
+            if not p.get("metin") or not p.get("kaynak"):
+                h.append(f"plan {i}: alıntı kartında 'metin' ve 'kaynak' zorunlu")
+            elif not any(parca in kaynak_metni for parca in re.split(r"\s*·\s*", p["kaynak"])):
+                h.append(f"plan {i}: alıntı kaynağı son karttaki kaynak satırlarında yok")
         if not p.get("kart") and not p.get("gorsel") and not p.get("istem"):
             h.append(f"plan {i}: görsel dosyası da görsel istemi de yok")
         if p.get("kart") != "son" and not p.get("cumle") and "sure" not in p:
