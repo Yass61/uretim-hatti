@@ -181,7 +181,8 @@ class Hat:
         sorunlar = denetim.yazi_olc(k["cumleler"])
         sorunlar += denetim.video_olc(self.video, k["sure"], bool(self.bolum.get("ses")))
         goz_var, puanlar = denetim.goz_anahtari() is not None, []
-        for t in denetim.ornek_anlar(k["planlar"], d["ornek_kare"]):
+        obekler = [(pr["bas"], pr["bit"]) for c in k["cumleler"] for pr in c.get("parcalar") or []]
+        for t in denetim.ornek_anlar(k["planlar"], d["ornek_kare"], obekler):
             yol = os.path.join(self.cikti, f"kare_{t:06.2f}.jpg")
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", self.video,
                             "-frames:v", "1", "-q:v", "3", yol], check=True)

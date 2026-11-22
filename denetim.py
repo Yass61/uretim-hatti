@@ -202,9 +202,15 @@ def goz(kare: np.ndarray | str, cumle: str, model: str, sor=_gemini, kart: bool 
     return son
 
 
-def ornek_anlar(planlar: list[dict], adet: int) -> list[float]:
-    """Her plandan bir an (ortası), en çok `adet` kare; kartlar da dahil."""
-    anlar = [(p["bas"] + p["bit"]) / 2 for p in planlar]
+def ornek_anlar(planlar: list[dict], adet: int, obekler: list[tuple[float, float]] | None = None) -> list[float]:
+    """Her plandan bir an, en çok `adet` kare; kartlar da dahil. An, altyazı öbeğinin belirip söndüğü
+    geçişlere ve plan geçişlerine denk gelmez: yarı saydam yazı görme denetimini yanıltıyordu."""
+    def temiz(p: dict) -> float:
+        orta = (p["bas"] + p["bit"]) / 2
+        adaylar = [((u + v) / 2, abs((u + v) / 2 - orta)) for u, v in (obekler or [])
+                   if v - u >= 0.6 and p["bas"] + 0.8 <= (u + v) / 2 <= p["bit"] - 0.3]
+        return min(adaylar, key=lambda a: a[1])[0] if adaylar else orta
+    anlar = [temiz(p) for p in planlar]
     if len(anlar) > adet:
         adim = len(anlar) / adet
         anlar = [anlar[int(i * adim)] for i in range(adet)]
