@@ -178,14 +178,19 @@ def _gemini(jpeg: bytes, istem: str, model: str) -> dict:
     return json.loads("".join(p.get("text", "") for p in parcalar))
 
 
-def goz(kare: np.ndarray | str, cumle: str, model: str, sor=_gemini) -> tuple[int | None, list[str]]:
+KART_NOTU = ("\nNOT: Bu kare kodla çizilmiş bir bilgi kartıdır (ayet, harita, alıntı ya da kaynak kartı). "
+             "Üzerindeki başlık, yer adları, Arapça metin, meal, alıntı ve kaynak yazıları kasıtlıdır; "
+             "uretilmis_yazi maddesi bu kareye uygulanmaz. Yazıların okunur olduğuna ve birbirine binmediğine bak.")
+
+
+def goz(kare: np.ndarray | str, cumle: str, model: str, sor=_gemini, kart: bool = False) -> tuple[int | None, list[str]]:
     """Bir kareyi denetim listesinden geçirir. Geçersiz cevapta bir kez daha sorar."""
     im = Image.open(kare).convert("RGB") if isinstance(kare, str) else Image.fromarray(kare)
     im.thumbnail((720, 1280))
     tampon = io.BytesIO()
     im.save(tampon, "JPEG", quality=88)
     istem = ISTEM.format(cumle=cumle or "(cümle yok)",
-                         maddeler="\n".join(f"- {ad}: {aciklama}" for ad, _, aciklama in MADDELER))
+                         maddeler="\n".join(f"- {ad}: {aciklama}" for ad, _, aciklama in MADDELER)) + (KART_NOTU if kart else "")
     son = (None, ["cevap alınamadı"])
     for _ in range(2):
         try:

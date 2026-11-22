@@ -21,12 +21,7 @@
   },
   {
    "id": "s2",
-   "metin": "Sâbit b. Kays'ın sesi doğuştan gürdü.",
-   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
-  },
-  {
-   "id": "s3",
-   "metin": "Kulağında ağırlık vardı; konuşurken sesi yükselirdi.",
+   "metin": "Sâbit b. Kays'ın sesi gürdü, kulağında da ağırlık vardı.",
    "kaynak": "Rûhu'l-Beyân, Hucurât 2"
   },
   {
@@ -50,11 +45,6 @@
    "kaynak": "Müslim, Îmân 187"
   },
   {
-   "id": "s7",
-   "metin": "Komşusu Sa'd b. Muâz yanına gitti.",
-   "kaynak": "Müslim, Îmân 187"
-  },
-  {
    "id": "s8",
    "metin": "Sâbit başını önüne eğmiş oturuyordu.",
    "kaynak": "Buhârî 3613"
@@ -70,19 +60,9 @@
    "kaynak": "Buhârî 3613"
   },
   {
-   "id": "s11",
-   "metin": "Resûlullah'ın cevabı geldi:",
-   "kaynak": "Müslim, Îmân 187"
-  },
-  {
    "id": "s12",
    "metin": "“Hayır, o cennetliklerdendir.”",
    "kaynak": "Müslim, Îmân 187"
-  },
-  {
-   "id": "s13",
-   "metin": "Rûhu'l-Beyân'da müjdenin devamı da geçer:",
-   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
   },
   {
    "id": "s14",
@@ -96,22 +76,12 @@
   },
   {
    "id": "s16",
-   "metin": "Rivayete göre şehadetinden sonra bir sahabinin rüyasına girdi.",
-   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
-  },
-  {
-   "id": "s17",
-   "metin": "Zırhının nerede olduğunu söyledi, borcunu ve vasiyetini bildirdi.",
+   "metin": "Şehadetinden sonra bir sahabinin rüyasına girip vasiyetini bildirdi.",
    "kaynak": "Rûhu'l-Beyân, Hucurât 2"
   },
   {
    "id": "s18",
-   "metin": "Zırh tarif edilen yerde bulundu; Hz. Ebû Bekir vasiyeti uyguladı.",
-   "kaynak": "Rûhu'l-Beyân, Hucurât 2"
-  },
-  {
-   "id": "s19",
-   "metin": "İmam Mâlik der ki:",
+   "metin": "Zırhı tarif ettiği yerde bulundu; Hz. Ebû Bekir vasiyeti uyguladı.",
    "kaynak": "Rûhu'l-Beyân, Hucurât 2"
   },
   {
@@ -134,8 +104,7 @@
   },
   {
    "cumle": [
-    "s2",
-    "s3"
+    "s2"
    ],
    "istem": "Inside an early simple mosque built of palm trunks with a roof of palm fronds, slanting shafts of light falling through gaps in the roof onto a packed-earth floor, quiet and empty, warm dust in the air."
   },
@@ -154,8 +123,7 @@
   },
   {
    "cumle": [
-    "s6",
-    "s7"
+    "s6"
    ],
    "istem": "A narrow lane in an old oasis town between sunlit mud-brick walls in the afternoon, a palm tree leaning over a wall, the lane leading toward a closed wooden door."
   },
@@ -170,7 +138,6 @@
   },
   {
    "cumle": [
-    "s11",
     "s12"
    ],
    "huzme": 0.25,
@@ -181,7 +148,6 @@
   {
    "kart": "alinti",
    "cumle": [
-    "s13",
     "s14"
    ],
    "metin": "İyi yaşayacak, iyi öleceksin ve cennet ehlindensin.",
@@ -203,11 +169,6 @@
      "ad": "Yemâme",
      "enlem": 24.9,
      "boylam": 46.4
-    },
-    {
-     "ad": "Mekke",
-     "enlem": 21.42,
-     "boylam": 39.83
     }
    ],
    "rota": [
@@ -217,8 +178,7 @@
   },
   {
    "cumle": [
-    "s16",
-    "s17"
+    "s16"
    ],
    "istem": "An empty desert camp at first light on a wide plain: a single tent, a tethered horse grazing beside it, an overturned clay cooking pot lying on the sand, pale sky and low dunes in the distance."
   },
@@ -231,7 +191,6 @@
   {
    "kart": "alinti",
    "cumle": [
-    "s19",
     "s20"
    ],
    "metin": "Sahibinin ölümünden sonra uygulanan bundan başka bir vasiyet bilmiyorum.",

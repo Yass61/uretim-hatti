@@ -189,7 +189,8 @@ class Hat:
             sorunlar += [f"{t:.1f}. sn: {s}" for s in denetim.kare_olc(kare)]
             if goz_var:
                 cumle = " ".join(c.get("metin") or "" for c in k["cumleler"] if c["bas"] <= t < c["bit"])
-                puan, bulgu = denetim.goz(kare, cumle, d["model"])
+                kart = any(p.get("kart") and p["bas"] <= t < p["bit"] for p in k["planlar"])
+                puan, bulgu = denetim.goz(kare, cumle, d["model"], kart=kart)
                 puanlar.append(puan)
                 if puan is None:
                     sorunlar.append(f"{t:.1f}. sn: kare denetlenemedi ({bulgu[0]})")

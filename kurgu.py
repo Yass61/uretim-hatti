@@ -63,12 +63,18 @@ def parcala(metin: str) -> list[str]:
             parcalar.append(" ".join(cur))
             cur = []
     # Tek kelimelik öbek ekranda yarım saniye bile kalmayabilir: kısa ise bir öncekine eklenir.
+    # Uzunsa önceki öbekten son kelime alınır: "gelmez oldu." gibi iki kelimelik bir öbek kalır.
     birlesik: list[str] = []
     for p in parcalar:
-        if birlesik and len(p.split()) == 1 and len(birlesik[-1]) + len(p) <= 28:
-            birlesik[-1] += " " + p
-        else:
-            birlesik.append(p)
+        if birlesik and len(p.split()) == 1:
+            if len(birlesik[-1]) + len(p) <= 28:
+                birlesik[-1] += " " + p
+                continue
+            onceki = birlesik[-1].split()
+            if len(onceki) > 1 and onceki[-1][-1] not in ",;:":
+                birlesik[-1] = " ".join(onceki[:-1])
+                p = onceki[-1] + " " + p
+        birlesik.append(p)
     return birlesik
 
 
@@ -267,7 +273,7 @@ def harita_karti(p: dict):
     orta = (min(en) + max(en)) / 2
     olcek = 640 / (b1 - b0)                               # piksel / derece; harita çerçevenin içinde kalır
     def xy(boylam: float, enlem: float) -> tuple[float, float]:
-        return 220 + (boylam - b0) * olcek, 960 - (enlem - orta) * olcek * 1.1
+        return 220 + (boylam - b0) * olcek, 760 - (enlem - orta) * olcek * 1.1
     taban = zemin()
     deniz = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     dd = ImageDraw.Draw(deniz)
@@ -281,7 +287,7 @@ def harita_karti(p: dict):
     ImageDraw.Draw(maske).rounded_rectangle([152, 272, W - 152, H - 272], 26, fill=255)
     taban.paste(deniz, (0, 0), Image.fromarray(np.minimum(np.asarray(maske), np.asarray(deniz.getchannel("A")))))
     d = ImageDraw.Draw(taban, "RGBA")
-    d.text((W / 2, 400), p.get("baslik", ""), font=yazi(F_KALIN, 58), fill=KREM, anchor="mm")
+    d.text((W / 2, 420), p.get("baslik", ""), font=yazi(F_KALIN, 58), fill=KREM, anchor="mm")
     d.text((W - 190, 1610), "Temsilî harita", font=yazi(F_ORTA, 28), fill=(205, 184, 154), anchor="rm")
     for kb, ke in KIYI:                                   # etiket, denizin çerçeve içinde yeterince geniş yerine
         kx, ky = xy(kb, ke)
@@ -379,6 +385,11 @@ def gorsel_yukle(yol: str) -> np.ndarray:
     return np.asarray(im.resize((W, H), Image.LANCZOS))
 
 
+def alinti_cumleleri(planlar: list[dict]) -> set[str]:
+    """Alıntı kartındaki cümleler: metin kartta yazılı, altyazı tekrar etmez."""
+    return {cid for p in planlar if p.get("kart") == "alinti" for cid in p.get("cumle") or []}
+
+
 def hazirla(bolum: dict, klasor: str):
     cumleler, planlar, toplam = cizelge(bolum)
     for i, p in enumerate(planlar):
@@ -400,8 +411,9 @@ def hazirla(bolum: dict, klasor: str):
             p["motor"] = Hareket(g, d, Ayar(hareket=p.get("hareket", SIRA[i % len(SIRA)]),
                                              hüzme=p.get("huzme", 0.0), isik_x=p.get("isik_x", 0.75),
                                              isik_y=p.get("isik_y", 0.25), tohum=7 + i))
+    kartta = alinti_cumleleri(planlar)
     yazilar = [(pr["bas"], pr["bit"], altyazi(pr["metin"]))
-               for c in cumleler if c.get("altyazi", True) for pr in c["parcalar"]]
+               for c in cumleler if c.get("altyazi", True) and c["id"] not in kartta for pr in c["parcalar"]]
     rozetler = [(c["bas"], c["bit"], rozet(c["kaynak"])) for c in cumleler if c.get("kaynak")]
     return cumleler, planlar, toplam, yazilar, rozetler
 
