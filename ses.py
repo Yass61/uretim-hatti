@@ -123,15 +123,38 @@ def bol(blok_wav: str, metinler: list[str], klasor: str, onek: str) -> list[str]
     toplam = _sure(blok_wav)
     sus = [(a, b) for a, b in _sessizlikler(blok_wav) if 0.05 < a and b < toplam - 0.05]
     harf = [len(m) for m in metinler]
-    kesimler, onceki = [], 0.0
-    for k in range(1, len(metinler)):
-        beklenen = toplam * sum(harf[:k]) / sum(harf)
-        adaylar = [(abs((a + b) / 2 - beklenen) - 0.8 * (b - a), (a + b) / 2) for a, b in sus
-                   if (a + b) / 2 > onceki + 0.4 and abs((a + b) / 2 - beklenen) < max(1.5, 0.25 * toplam / len(metinler))]
-        if not adaylar:
+    n = len(metinler)
+    if len(sus) < n - 1:
+        return None
+    # Dinamik programlama: n-1 sessizliği, her cümlenin süresi harf payına en yakın olacak ve
+    # uzun duraklar tercih edilecek biçimde seç (açgözlü seçim bir kayınca hepsi kayıyordu).
+    orta = [(a + b) / 2 for a, b in sus]
+    uzun = [b - a for a, b in sus]
+    pay = [toplam * h / sum(harf) for h in harf]
+    def bedel(bas: float, son: float, i: int) -> float:
+        return ((son - bas - pay[i]) / pay[i]) ** 2
+    m = len(sus)
+    INF = float("inf")
+    dp = [[INF] * m for _ in range(n - 1)]
+    geri = [[-1] * m for _ in range(n - 1)]
+    for j in range(m):
+        dp[0][j] = bedel(0.0, orta[j], 0) - 0.6 * uzun[j]
+    for i in range(1, n - 1):
+        for j in range(i, m):
+            for k in range(i - 1, j):
+                v = dp[i - 1][k] + bedel(orta[k], orta[j], i) - 0.6 * uzun[j]
+                if v < dp[i][j]:
+                    dp[i][j], geri[i][j] = v, k
+    if n == 1:
+        kesimler = []
+    else:
+        son_j = min(range(m), key=lambda j: dp[n - 2][j] + bedel(orta[j], toplam, n - 1))
+        if dp[n - 2][son_j] == INF:
             return None
-        onceki = min(adaylar)[1]
-        kesimler.append(onceki)
+        sec = [son_j]
+        for i in range(n - 2, 0, -1):
+            sec.append(geri[i][sec[-1]])
+        kesimler = [orta[j] for j in reversed(sec)]
     sinirlar = [0.0] + kesimler + [toplam]
     for i, m in enumerate(metinler):                      # bir cümle beklenenin yarısından kısa ya da iki katından
         beklenen = toplam * harf[i] / sum(harf)           # uzunsa kesim yanlış yere düşmüştür: güvenme

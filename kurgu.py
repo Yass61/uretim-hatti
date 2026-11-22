@@ -455,6 +455,10 @@ def plan_karesi(p: dict, t: float) -> np.ndarray:
     return p["motor"].kare((t - p["bas"]) / sure, t - p["bas"])
 
 
+_y = np.linspace(-1, 1, 340)[:, None, None]
+BANT = (0.38 * np.cos(_y * np.pi / 2) ** 2).astype(np.float32)   # ortada %38, kenarlarda 0
+
+
 def kare(t: float, planlar, yazilar, rozetler) -> Image.Image:
     i = max(k for k, p in enumerate(planlar) if p["bas"] <= t + 1e-9)
     p = planlar[i]
@@ -463,6 +467,13 @@ def kare(t: float, planlar, yazilar, rozetler) -> Image.Image:
         a = (t - p["bas"]) / GECIS
         once = plan_karesi(planlar[i - 1], t)
         k = (once.astype(np.float32) * (1 - a) + k.astype(np.float32) * a).astype(np.uint8)
+    for bas, bit, ov in yazilar:                          # altyazı bandı hafifçe koyulaşır: açık zeminde de okunur
+        if bas <= t < bit:
+            y0 = int(H * 0.55) - 110 - 60
+            k = k.astype(np.float32)
+            k[y0:y0 + BANT.shape[0]] *= 1 - BANT * belir(t, bas, bit, 0.14)
+            k = k.astype(np.uint8)
+            break
     img = Image.fromarray(k)
     for bas, bit, ov in rozetler:
         if bas <= t < bit:
