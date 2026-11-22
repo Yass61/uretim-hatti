@@ -44,6 +44,9 @@ def kuran_var(sure: int, ayet: int) -> bool:
         return False
 
 
+ONARIM_TURU = 2                                          # kalite kalırsa en çok iki onarım turu
+
+
 class Hat:
     def __init__(self, bolum_yolu: str, gonder: bool = True):
         self.yol = os.path.abspath(bolum_yolu)
@@ -137,8 +140,9 @@ class Hat:
         self.bolum["ses"] = {**s, "dosya": os.path.relpath(s["dosya"], self.klasor)}
         self._adim("ses", "üretildi", motor=s["motor"], sure=round(max(b for _, b in s["zamanlar"].values()), 1))
 
-    def gorseller(self) -> None:
-        istemli = [i for i, p in enumerate(self.bolum["planlar"]) if p.get("istem") and not p.get("kart")]
+    def gorseller(self, planlar: list[int] | None = None) -> None:
+        istemli = [i for i, p in enumerate(self.bolum["planlar"]) if p.get("istem") and not p.get("kart")
+                   and (planlar is None or i in planlar)]
         if not istemli:
             return self._adim("gorsel", "atlandı", neden="planlarda görsel istemi yok; eldeki dosyalar kullanılır")
         saglayici = gorsel.ayar_coz(self.ayar)[0]
@@ -149,7 +153,7 @@ class Hat:
                 raise SystemExit(f"{saglayici} görsel anahtarı yok ve şu planların hazır görseli de yok: {eksik}")
             self._not(f"{saglayici} görsel anahtarı yok; yeni görsel üretilmedi, eldeki yer tutucu görseller kullanıldı.")
             return self._adim("gorsel", "atlandı", neden=f"{saglayici} anahtarı yok")
-        adaylar = gorsel.uret(self.bolum, self.ayar, self.kapi)
+        adaylar = gorsel.uret(self.bolum, self.ayar, self.kapi, planlar=planlar)
         goz_var = denetim.goz_anahtari() is not None
         secimler = {}
         for i, yollar in adaylar.items():
@@ -181,6 +185,7 @@ class Hat:
         sorunlar = denetim.yazi_olc(k["cumleler"])
         sorunlar += denetim.video_olc(self.video, k["sure"], bool(self.bolum.get("ses")))
         goz_var, puanlar = denetim.goz_anahtari() is not None, []
+        bozuk: set[int] = set()
         obekler = [(pr["bas"], pr["bit"]) for c in k["cumleler"] for pr in c.get("parcalar") or []]
         for t in denetim.ornek_anlar(k["planlar"], d["ornek_kare"], obekler):
             yol = os.path.join(self.cikti, f"kare_{t:06.2f}.jpg")
@@ -197,8 +202,11 @@ class Hat:
                     sorunlar.append(f"{t:.1f}. sn: kare denetlenemedi ({bulgu[0]})")
                 elif puan < d["gecme_puani"]:
                     sorunlar += [f"{t:.1f}. sn ({puan}/10): {b}" for b in bulgu]
+                    if not kart:                         # görsel sahne: yeniden üretilerek onarılabilir
+                        bozuk.update(i for i, p in enumerate(k["planlar"]) if p["bas"] <= t < p["bit"])
         self.kalite_sonucu = {"gecti": not sorunlar, "sorunlar": sorunlar, "puanlar": puanlar,
-                              "goz": "var" if goz_var else "yok"}
+                              "goz": "var" if goz_var else "yok", "bozuk_planlar": sorted(bozuk),
+                              "yalniz_gorsel": bool(bozuk) and all("/10)" in x for x in sorunlar)}
         self._adim("kalite", "geçti" if not sorunlar else "kaldı", **self.kalite_sonucu)
         return not sorunlar
 
@@ -224,6 +232,18 @@ class Hat:
         self.gorseller()
         self.kur()
         gecti = self.kalite()
+        for tur in range(1, ONARIM_TURU + 1):            # yalnız görselden kalan sahneler yeni tohumla yeniden üretilir
+            if gecti or not self.kalite_sonucu.get("yalniz_gorsel"):
+                break
+            bozuk = self.kalite_sonucu["bozuk_planlar"]
+            self._not(f"Onarım {tur}: {len(bozuk)} sahne yeniden üretildi (plan {', '.join(str(i + 1) for i in bozuk)}).")
+            for i in bozuk:
+                p = self.bolum["planlar"][i]
+                p["yeniden"] = p.get("yeniden", 0) + 1
+                p.pop("gorsel", None)
+            self.gorseller(planlar=bozuk)
+            self.kur()
+            gecti = self.kalite()
         rapor = denetim.rapor_metni(self.kalite_sonucu)
         aciklama = (f"{self.bolum['baslik']}\n{self.kurgu['sure']:.0f} sn · harcanan {self.kapi.harcanan():.2f} USD\n\n"
                     f"{rapor}" + ("\n\n" + "\n".join("ℹ️ " + n for n in self.durum["notlar"]) if self.durum["notlar"] else ""))

@@ -138,8 +138,9 @@ def istekler(bolum: dict, ayar: dict, saglayici: str | None = None,
             continue
         istem = tam_istem(p["istem"])                    # tohum istemden türer: aynı istem, aynı görsel
         for a in range(p.get("aday", ayar["gorsel"].get("aday", 2))):
+            yeniden = p.get("yeniden", 0)                 # kalite kalınca sahne yeni tohumla üretilir
             liste.append((i, a, {"saglayici": s, "model": model, "istem": istem,
-                                 "tohum": int(ozet({"i": istem}), 16) % 90000 + a}))
+                                 "tohum": int(ozet({"i": istem}), 16) % 90000 + a + 101 * yeniden}))
     return liste
 
 

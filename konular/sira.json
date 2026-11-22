@@ -1,0 +1,61 @@
+{
+ "_not": "Konu kuyruğu. durum: bekliyor | yazildi | uretildi | kenara | yayinlandi",
+ "konular": [
+  {
+   "slug": "sabit-b-kays",
+   "durum": "uretildi"
+  },
+  {
+   "slug": "ebu-talha",
+   "durum": "uretildi"
+  },
+  {
+   "slug": "hasr-9-ensari-misafir",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "tevbe-118-kab-b-malik",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "nur-22-ebu-bekir-mistah",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "ahzab-23-enes-b-nadr",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "abese-1-ibn-ummi-mektum",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "mucadele-1-havle",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "bakara-187-kays-b-sirme",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "nisa-95-ibn-ummi-mektum",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "bakara-158-safa-merve",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "tevbe-84-omer",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "nisa-11-sad-b-rebi",
+   "durum": "bekliyor"
+  },
+  {
+   "slug": "al-i-imran-169-abdullah-b-amr",
+   "durum": "bekliyor"
+  }
+ ]
+}
