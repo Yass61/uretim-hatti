@@ -13,5 +13,7 @@ Servis `nice 15` ve en çok 150 MB bellekle çalışır. Diğer servislere ve tm
     sudo nano /etc/zaviye/ortam
     sudo systemctl enable --now zaviye-bot && sudo journalctl -u zaviye-bot -n 20
 
+Program: sunucuda `/etc/zaviye/program.json` boşsa depodaki `sunucu/program.json` okunur; takvim değişikliği için sunucuya girmek gerekmez.
+
 Güncelleme: ilk iki `curl` satırı ve `sudo bash kurulum.sh` yeniden çalıştırılır, ardından `sudo systemctl restart zaviye-bot`.
 Durdurma: `sudo systemctl disable --now zaviye-bot`.

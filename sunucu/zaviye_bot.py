@@ -102,10 +102,18 @@ def guncelleme_isle(g):
 
 def zamanlanmis(d):
     """program.json: [{"ad": "haftalik", "gun": 0-6 (0=Pazartesi), "saat": "09:00", "is_akisi": "uret.yml", "girdi": {...}}]"""
+    isler = []
     try:
         isler = json.load(open(PROGRAM))
     except Exception:
-        return
+        pass
+    if not isler:                     # sunucuda program yoksa depodaki sunucu/program.json kullanılır
+        try:
+            import base64
+            icerik = gh("contents/sunucu/program.json")[1]["content"]
+            isler = json.loads(base64.b64decode(icerik))
+        except Exception:
+            return
     simdi = datetime.now(TZ)
     for i in isler:
         saat, dk = map(int, i["saat"].split(":"))
