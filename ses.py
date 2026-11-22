@@ -47,7 +47,7 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
     os.makedirs(klasor, exist_ok=True)
     fiyat = (ayar.get("fiyatlar") or {}).get(s["motor"], FIYAT.get(s["motor"], 0.0))
     konusulan = [c for c in bolum["cumleler"] if not c.get("bekle")]
-    parcalar, zamanlar, t = [], {}, ACILIS_SN
+    parcalar, zamanlar, duraklar, t = [], {}, {}, ACILIS_SN
     hazir: dict[str, str] = {}
     if s.get("blok"):                                   # bekleme araları arasındaki cümleler tek parça okunur
         gruplar, cur = [], []
@@ -87,11 +87,13 @@ def uret(bolum: dict, ayar: dict, klasor: str, kapi: Kapi, motorlar: dict | None
         _kirp(ham, wav)
         sure = _sure(wav)
         zamanlar[c["id"]] = [round(t, 3), round(t + sure, 3)]
+        # cümle içindeki duraklar (virgül nefesleri): altyazı öbekleri bunlara oturur
+        duraklar[c["id"]] = [round((a + b) / 2, 3) for a, b in _sessizlikler(wav, -38, 0.12) if 0.15 < a and b < sure - 0.15]
         parcalar += [("ses", wav), ("sus", ARA_SN)]
         t += sure + ARA_SN
     cikti = os.path.join(klasor, "anlatim.wav")
     birlestir([("sus", ACILIS_SN)] + parcalar + [("sus", KAPANIS_SN)], cikti)
-    return {"dosya": cikti, "zamanlar": zamanlar,
+    return {"dosya": cikti, "zamanlar": zamanlar, "duraklar": duraklar,
             "motor": s["motor"], "ses": s["ses"]}
 
 

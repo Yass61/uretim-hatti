@@ -71,6 +71,38 @@ def parcala(metin: str) -> list[str]:
     return birlesik
 
 
+
+def obek_zamanlari(ps: list[str], bas: float, bit: float, duraklar: list[float]) -> list[tuple[float, float]]:
+    """Öbek sınırlarını sese oturtur. Ağırlık okunuşun uzunluğudur (rakamlar, kısaltmalar açılmış hâli);
+    noktalama ile biten öbeğin sonu, beklenen yere en yakın gerçek durağa (cümle içi sessizlik) çekilir.
+    Ara öbekler iki çapa arasında orantılı dağılır; böylece kayma bir sonraki durakta değil, hiç birikmez."""
+    from okunus import okunus
+    if not ps:
+        return []
+    agirlik = [max(len(okunus(p)), 1) for p in ps]
+    toplam, sure = sum(agirlik), bit - bas
+    sinir = [bas]
+    for i in range(1, len(ps)):
+        sinir.append(bas + sure * sum(agirlik[:i]) / toplam)
+    sinir.append(bit)
+    capa = {0: bas, len(ps): bit}
+    kullanildi: set[float] = set()
+    for i in range(1, len(ps)):
+        if ps[i - 1][-1] in ",;:—–" and duraklar:
+            yakin = min((d for d in duraklar if d not in kullanildi), key=lambda d: abs(bas + d - sinir[i]), default=None)
+            if yakin is not None and abs(bas + yakin - sinir[i]) < max(0.8, 0.25 * sure):
+                capa[i] = bas + yakin
+                kullanildi.add(yakin)
+    sirali = sorted(capa)
+    for a, b in zip(sirali, sirali[1:]):                 # çapalar arasında orantılı dağıt
+        w = sum(agirlik[a:b]) or 1
+        u = capa[a]
+        for k in range(a, b):
+            sinir[k] = u
+            u += (capa[b] - capa[a]) * agirlik[k] / w
+    sinir[len(ps)] = bit
+    return [(sinir[k], sinir[k + 1]) for k in range(len(ps))]
+
 def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
     zamanlar = (bolum.get("ses") or {}).get("zamanlar") or {}
     t, cumleler = 0.0, []
@@ -79,12 +111,9 @@ def cizelge(bolum: dict) -> tuple[list[dict], list[dict], float]:
         if c["id"] in zamanlar:                       # gerçek ses: süre sesten gelir
             bas, bit = zamanlar[c["id"]]
             ps = parcala(c.get("metin") or "")
-            toplam = sum(len(p) for p in ps) or 1
-            u = bas
-            for p in ps:                                 # öbekler harf sayısına orantılı dağıtılır
-                dur = (bit - bas) * len(p) / toplam
-                parcalar.append({"metin": p, "bas": u, "bit": u + dur})
-                u += dur
+            duraklar = ((bolum.get("ses") or {}).get("duraklar") or {}).get(c["id"]) or []
+            for p, (u, v) in zip(ps, obek_zamanlari(ps, bas, bit, duraklar)):
+                parcalar.append({"metin": p, "bas": u, "bit": v})
             t = bit
         elif c.get("bekle"):
             bas, t = t, t + c["bekle"]
@@ -143,11 +172,11 @@ def ayet_karti(bolum: dict) -> Image.Image:
     img = zemin()
     d = ImageDraw.Draw(img)
     kw = dict(direction="rtl", language="ar")
-    boyut = 78
+    boyut = 64                                           # Arapça süs ve asıl metin; okunan asıl yazı meal
     while True:                                          # uzun ayette yazı küçülür, taşmaz
         fq = yazi(F_KURAN, boyut)
         satirlar = satirla(d, arapca.split(), fq, 700, **kw)
-        fm = yazi(F_SERIF, max(int(boyut * 0.56), 30))
+        fm = yazi(F_SERIF, max(int(boyut * 0.78), 34))
         meal = satirla(d, a["elmalili"].strip().split(), fm, 690)
         yuk = len(satirlar) * boyut * 1.92 + 180 + len(meal) * fm.size * 1.5 + 90
         if yuk <= 1250 or boyut <= 40:
