@@ -29,7 +29,7 @@
  },
  "yayin": {
   "_not": "Postproxy. taslak=true: gönderi taslak açılır, panelden elle yayınlanır. İlk bölümler bu şekilde; güven oluşunca false.",
-  "taslak": true,
+  "taslak": false,
   "profiller": [
    "instagram"
   ],
